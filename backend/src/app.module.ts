@@ -8,6 +8,7 @@ import {
 } from './infrastructure/config/environment-variables.js';
 import { createTypeOrmOptions } from './infrastructure/database/typeorm-options.js';
 import { createLoggerOptions } from './infrastructure/logging/logger-options.js';
+import { HealthModule } from './modules/health.module.js';
 
 type AppConfig = ConfigService<EnvironmentVariables, true>;
 
@@ -36,6 +37,7 @@ type AppConfig = ConfigService<EnvironmentVariables, true>;
         autoLoadEntities: true,
       }),
     }),
+    HealthModule,
   ],
 })
 export class AppModule {}

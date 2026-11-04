@@ -5,6 +5,7 @@ const required = {
   DB_USERNAME: 'clena',
   DB_PASSWORD: 'clena_local',
   DB_NAME: 'clena',
+  JWT_ACCESS_SECRET: 'x'.repeat(32),
 };
 
 describe('validateEnvironment', () => {
@@ -16,6 +17,14 @@ describe('validateEnvironment', () => {
     expect(variables.DB_PORT).toBe(5433);
     expect(variables.LOG_LEVEL).toBe('info');
     expect(variables.CORS_ORIGIN).toBe('http://localhost:5173');
+    expect(variables.JWT_ACCESS_TTL_SECONDS).toBe(900);
+    expect(variables.REFRESH_TOKEN_TTL_DAYS).toBe(7);
+  });
+
+  it('exige un secreto de JWT de al menos 32 caracteres', () => {
+    expect(() =>
+      validateEnvironment({ ...required, JWT_ACCESS_SECRET: 'corto' }),
+    ).toThrow(/JWT_ACCESS_SECRET/);
   });
 
   it('falla si falta una variable obligatoria', () => {

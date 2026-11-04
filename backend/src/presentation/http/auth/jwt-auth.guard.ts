@@ -1,0 +1,44 @@
+import {
+  type CanActivate,
+  type ExecutionContext,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import {
+  TOKEN_SERVICE,
+  type TokenService,
+} from '../../../application/auth/ports/token-service.js';
+import { AuthenticationError } from '../../../domain/errors/domain-errors.js';
+import { type AuthenticatedRequest, IS_PUBLIC_KEY } from './auth.decorators.js';
+
+/**
+ * Guard global: toda ruta exige un access token válido en la cabecera
+ * Authorization: Bearer <token>, salvo las marcadas con @Public().
+ */
+@Injectable()
+export class JwtAuthGuard implements CanActivate {
+  constructor(
+    private readonly reflector: Reflector,
+    @Inject(TOKEN_SERVICE) private readonly tokens: TokenService,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) {
+      return true;
+    }
+
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const [scheme, token] = (request.headers.authorization ?? '').split(' ');
+    if (scheme !== 'Bearer' || !token) {
+      throw new AuthenticationError('Debe iniciar sesión', 'NO_AUTENTICADO');
+    }
+
+    request.user = await this.tokens.verifyAccessToken(token);
+    return true;
+  }
+}

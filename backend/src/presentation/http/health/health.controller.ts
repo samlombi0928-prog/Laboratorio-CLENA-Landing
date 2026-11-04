@@ -7,9 +7,11 @@ import {
 } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { CheckHealthUseCase } from '../../../application/health/check-health.use-case.js';
+import { Public } from '../auth/auth.decorators.js';
 import { HealthStatusResponse } from './health-status.response.js';
 
 @ApiTags('Salud')
+@Public()
 @Controller('health')
 export class HealthController {
   constructor(private readonly checkHealth: CheckHealthUseCase) {}

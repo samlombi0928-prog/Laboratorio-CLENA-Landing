@@ -9,6 +9,8 @@ import {
 import type { Request, Response } from 'express';
 import {
   AccessDeniedError,
+  AuthenticationError,
+  ConflictError,
   DomainError,
   ResourceNotFoundError,
 } from '../../../domain/errors/domain-errors.js';
@@ -112,6 +114,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
 function statusForDomainError(error: DomainError): number {
   if (error instanceof ResourceNotFoundError) return HttpStatus.NOT_FOUND;
+  if (error instanceof AuthenticationError) return HttpStatus.UNAUTHORIZED;
   if (error instanceof AccessDeniedError) return HttpStatus.FORBIDDEN;
+  if (error instanceof ConflictError) return HttpStatus.CONFLICT;
   return HttpStatus.UNPROCESSABLE_ENTITY;
 }

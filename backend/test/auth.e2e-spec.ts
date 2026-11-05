@@ -86,10 +86,10 @@ describe('Autenticación (e2e)', () => {
       });
     });
 
-    it('responde 409 si el correo ya está registrado', async () => {
+    it('responde 409 si el correo ya está registrado, aunque cambien mayúsculas y espacios', async () => {
       const res = await http
         .post('/api/v1/auth/registro')
-        .send({ ...ana, correo: 'ANA@correo.com' })
+        .send({ ...ana, correo: '  ANA@correo.com ' })
         .expect(409);
 
       expect(res.body.codigo).toBe('CORREO_YA_REGISTRADO');
@@ -136,7 +136,7 @@ describe('Autenticación (e2e)', () => {
     it('POST /login entrega el access token y la cookie httpOnly', async () => {
       const res = await http
         .post('/api/v1/auth/login')
-        .send({ correo: 'Ana@Correo.com', contrasena: 'secreta123' })
+        .send({ correo: ' Ana@Correo.com  ', contrasena: 'secreta123' })
         .expect(200);
 
       expect(res.body).toMatchObject({

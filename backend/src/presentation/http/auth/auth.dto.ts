@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsEmail,
@@ -13,6 +14,16 @@ import type {
 } from '../../../application/auth/auth-result.js';
 import { Role } from '../../../domain/users/role.js';
 
+/**
+ * Quita los espacios de los extremos antes de validar. Al copiar y pegar, o
+ * con el autocompletado del celular, el correo suele llegar con un espacio
+ * de más.
+ */
+const Trim = () =>
+  Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  );
+
 export class RegisterRequest {
   @ApiProperty({ example: 'Ana Pérez', maxLength: 100 })
   @IsString({ message: 'El nombre debe ser texto' })
@@ -21,6 +32,7 @@ export class RegisterRequest {
   nombre: string;
 
   @ApiProperty({ example: 'ana@correo.com', maxLength: 254 })
+  @Trim()
   @IsEmail({}, { message: 'El correo no es válido' })
   @MaxLength(254, { message: 'El correo puede tener máximo 254 caracteres' })
   correo: string;
@@ -43,6 +55,7 @@ export class RegisterRequest {
 
 export class LoginRequest {
   @ApiProperty({ example: 'ana@correo.com' })
+  @Trim()
   @IsEmail({}, { message: 'El correo no es válido' })
   correo: string;
 

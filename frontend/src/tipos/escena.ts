@@ -14,6 +14,14 @@ export interface Conexion {
   pitch: number
 }
 
+/** Parte de la historia de una sala que se muestra en el cuadro inferior izquierdo */
+export interface FragmentoHistoria {
+  titulo: string
+  texto: string
+  /** Fecha o época a la que se refiere, por ejemplo "1921" o "Siglo XX" */
+  epoca?: string
+}
+
 export interface Escena {
   id: string
   nombre: string
@@ -27,4 +35,5 @@ export interface Escena {
   /** Solo fotos 360°: cuánto puede bajar la vista, en grados (negativo = bajo el horizonte) */
   inclinacionMinima?: number
   conexiones: Conexion[]
+  historia: FragmentoHistoria[]
 }

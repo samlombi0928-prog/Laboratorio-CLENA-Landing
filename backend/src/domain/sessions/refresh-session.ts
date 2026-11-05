@@ -1,9 +1,12 @@
+import { RevocationReason } from './revocation-reason.js';
+
 export interface RefreshSessionProps {
   id: string;
   userId: string;
   tokenHash: string;
   expiresAt: Date;
   revokedAt: Date | null;
+  revocationReason: RevocationReason | null;
   createdAt: Date;
 }
 
@@ -30,6 +33,7 @@ export class RefreshSession {
       tokenHash: input.tokenHash,
       expiresAt: new Date(input.now.getTime() + input.ttlMs),
       revokedAt: null,
+      revocationReason: null,
       createdAt: input.now,
     });
   }
@@ -58,6 +62,10 @@ export class RefreshSession {
     return this.props.revokedAt;
   }
 
+  get revocationReason(): RevocationReason | null {
+    return this.props.revocationReason;
+  }
+
   get createdAt(): Date {
     return this.props.createdAt;
   }
@@ -74,9 +82,22 @@ export class RefreshSession {
     return !this.isRevoked && !this.isExpired(now);
   }
 
-  revoke(now: Date): void {
+  /**
+   * true si la sesión se cambió por una nueva (rotación) hace menos de
+   * `periodMs` milisegundos.
+   */
+  wasRotatedWithin(now: Date, periodMs: number): boolean {
+    return (
+      this.props.revocationReason === RevocationReason.Rotated &&
+      this.props.revokedAt !== null &&
+      now.getTime() - this.props.revokedAt.getTime() < periodMs
+    );
+  }
+
+  revoke(now: Date, reason: RevocationReason): void {
     if (!this.isRevoked) {
       this.props.revokedAt = now;
+      this.props.revocationReason = reason;
     }
   }
 }

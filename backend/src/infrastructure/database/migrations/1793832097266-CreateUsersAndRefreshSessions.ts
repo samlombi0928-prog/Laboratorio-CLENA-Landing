@@ -31,8 +31,10 @@ export class CreateUsersAndRefreshSessions1793832097266 implements MigrationInte
         "token_hash" character(64) NOT NULL,
         "expires_at" TIMESTAMP WITH TIME ZONE NOT NULL,
         "revoked_at" TIMESTAMP WITH TIME ZONE,
+        "revocation_reason" character varying(20),
         "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
         CONSTRAINT "UQ_refresh_sessions_token_hash" UNIQUE ("token_hash"),
+        CONSTRAINT "CHK_refresh_sessions_revocation_reason" CHECK ("revocation_reason" IN ('rotated', 'logged_out', 'reuse_detected')),
         CONSTRAINT "PK_refresh_sessions" PRIMARY KEY ("id")
       )`,
     );

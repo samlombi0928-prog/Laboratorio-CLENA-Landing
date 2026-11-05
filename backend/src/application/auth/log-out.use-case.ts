@@ -1,3 +1,4 @@
+import { RevocationReason } from '../../domain/sessions/revocation-reason.js';
 import type { SessionRepository } from './ports/session-repository.js';
 import type { TokenService } from './ports/token-service.js';
 
@@ -21,11 +22,12 @@ export class LogOutUseCase {
     const session = await this.sessions.findByTokenHash(
       this.tokens.hashRefreshToken(refreshToken),
     );
-    if (!session || session.isRevoked) {
-      return;
+    if (session) {
+      await this.sessions.revokeIfActive(
+        session.id,
+        this.now(),
+        RevocationReason.LoggedOut,
+      );
     }
-
-    session.revoke(this.now());
-    await this.sessions.save(session);
   }
 }

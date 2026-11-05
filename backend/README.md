@@ -81,6 +81,7 @@ Cómo funciona la sesión:
 - **Refresh token:** va en la cookie `refresh_token`, que es `httpOnly` (JavaScript no la puede leer), `SameSite=Strict`, solo viaja a `/api/v1/auth` y en producción solo por HTTPS. El frontend debe hacer las peticiones a `/auth` con `credentials: 'include'`.
 - **Al recargar la página:** el frontend llama a `POST /renovar` para recuperar la sesión.
 - **Rotación:** cada renovación invalida el refresh token anterior. Si alguien usa uno ya invalidado, se cierran todas las sesiones de ese usuario.
+- **Varias pestañas:** si dos peticiones renuevan con la misma cookie, solo una lo logra. La otra recibe **409 `SESION_YA_RENOVADA`** y la cookie no se borra, porque el navegador ya tiene la nueva: el frontend solo debe volver a llamar a `POST /renovar`. Esto aplica durante 10 segundos después de la renovación; pasado ese tiempo, el token viejo cuenta como robado.
 - **En la base de datos:** las contraseñas se guardan con argon2id y de los refresh tokens solo se guarda su SHA-256.
 - **Límite de intentos:** registro e inicio de sesión aceptan 10 intentos por minuto por IP; después responden 429.
 - **Ley 1581:** el registro exige `aceptaPrivacidad: true`. Cada usuario queda con la fecha del consentimiento y la versión del aviso que aceptó (`PRIVACY_NOTICE_VERSION`, hoy provisional).

@@ -1,6 +1,7 @@
 import { JwtService } from '@nestjs/jwt';
 import { AuthenticationError } from '../../domain/errors/domain-errors.js';
 import { RefreshSession } from '../../domain/sessions/refresh-session.js';
+import { RevocationReason } from '../../domain/sessions/revocation-reason.js';
 import { Role } from '../../domain/users/role.js';
 import { User } from '../../domain/users/user.js';
 import { RefreshSessionMapper } from '../sessions/refresh-session.mapper.js';
@@ -114,7 +115,7 @@ describe('Mappers', () => {
       now,
       ttlMs: 1000,
     });
-    session.revoke(now);
+    session.revoke(now, RevocationReason.Rotated);
 
     const back = RefreshSessionMapper.toDomain(
       RefreshSessionMapper.toPersistence(session),

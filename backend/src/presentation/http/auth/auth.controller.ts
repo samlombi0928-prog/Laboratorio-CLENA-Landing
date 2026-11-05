@@ -29,8 +29,12 @@ import type { AuthResult } from '../../../application/auth/auth-result.js';
 import { GetProfileUseCase } from '../../../application/auth/get-profile.use-case.js';
 import { LogInUseCase } from '../../../application/auth/log-in.use-case.js';
 import { LogOutUseCase } from '../../../application/auth/log-out.use-case.js';
-import { RefreshSessionUseCase } from '../../../application/auth/refresh-session.use-case.js';
+import {
+  RefreshSessionUseCase,
+  SESSION_ALREADY_RENEWED,
+} from '../../../application/auth/refresh-session.use-case.js';
 import { RegisterUserUseCase } from '../../../application/auth/register-user.use-case.js';
+import { ConflictError } from '../../../domain/errors/domain-errors.js';
 import { API_PREFIX } from '../api-prefix.js';
 import { ErrorResponse } from '../errors/error-response.js';
 import {
@@ -135,6 +139,11 @@ export class AuthController {
     type: ErrorResponse,
     description: 'La sesión venció o no es válida',
   })
+  @ApiConflictResponse({
+    type: ErrorResponse,
+    description:
+      'Otra petición ya renovó esta sesión (SESION_YA_RENOVADA). Vuelva a llamar a /renovar: la cookie nueva ya está en el navegador',
+  })
   async refresh(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
@@ -145,7 +154,11 @@ export class AuthController {
       );
       return this.startSession(response, result);
     } catch (error) {
-      this.clearCookie(response);
+      // Si otra pestaña ya renovó, el navegador tiene la cookie nueva y no se
+      // debe borrar.
+      if (!isSessionAlreadyRenewed(error)) {
+        this.clearCookie(response);
+      }
       throw error;
     }
   }
@@ -195,6 +208,12 @@ export class AuthController {
       path: REFRESH_COOKIE_PATH,
     });
   }
+}
+
+function isSessionAlreadyRenewed(error: unknown): boolean {
+  return (
+    error instanceof ConflictError && error.code === SESSION_ALREADY_RENEWED
+  );
 }
 
 function readRefreshCookie(request: Request): string | undefined {

@@ -1,4 +1,5 @@
 import { RefreshSession } from '../../domain/sessions/refresh-session.js';
+import { RevocationReason } from '../../domain/sessions/revocation-reason.js';
 import { RefreshSessionOrmEntity } from './refresh-session.orm-entity.js';
 
 export const RefreshSessionMapper = {
@@ -9,6 +10,7 @@ export const RefreshSessionMapper = {
       tokenHash: row.tokenHash,
       expiresAt: row.expiresAt,
       revokedAt: row.revokedAt,
+      revocationReason: row.revocationReason as RevocationReason | null,
       createdAt: row.createdAt,
     });
   },
@@ -20,6 +22,7 @@ export const RefreshSessionMapper = {
     row.tokenHash = session.tokenHash;
     row.expiresAt = session.expiresAt;
     row.revokedAt = session.revokedAt;
+    row.revocationReason = session.revocationReason;
     row.createdAt = session.createdAt;
     return row;
   },

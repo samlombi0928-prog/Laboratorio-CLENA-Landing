@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   Entity,
   Index,
@@ -9,9 +10,12 @@ import {
 } from 'typeorm';
 import { UserOrmEntity } from '../users/user.orm-entity.js';
 
+const REVOCATION_REASON_CHECK = `"revocation_reason" IN ('rotated', 'logged_out', 'reuse_detected')`;
+
 @Entity('refresh_sessions')
 @Unique('UQ_refresh_sessions_token_hash', ['tokenHash'])
 @Index('IDX_refresh_sessions_user_id', ['userId'])
+@Check('CHK_refresh_sessions_revocation_reason', REVOCATION_REASON_CHECK)
 export class RefreshSessionOrmEntity {
   @PrimaryColumn({
     type: 'uuid',
@@ -39,6 +43,14 @@ export class RefreshSessionOrmEntity {
 
   @Column({ name: 'revoked_at', type: 'timestamptz', nullable: true })
   revokedAt: Date | null;
+
+  @Column({
+    name: 'revocation_reason',
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
+  revocationReason: string | null;
 
   @Column({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

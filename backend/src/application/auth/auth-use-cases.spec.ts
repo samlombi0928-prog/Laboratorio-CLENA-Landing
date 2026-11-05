@@ -15,7 +15,10 @@ import { Role } from '../../domain/users/role.js';
 import { GetProfileUseCase } from './get-profile.use-case.js';
 import { LogInUseCase } from './log-in.use-case.js';
 import { LogOutUseCase } from './log-out.use-case.js';
-import { RefreshSessionUseCase } from './refresh-session.use-case.js';
+import {
+  REUSE_GRACE_PERIOD_MS,
+  RefreshSessionUseCase,
+} from './refresh-session.use-case.js';
 import { RegisterUserUseCase } from './register-user.use-case.js';
 import { SessionIssuer } from './session-issuer.js';
 
@@ -155,14 +158,15 @@ describe('RefreshSessionUseCase', () => {
 
     expect(renewed.refreshToken).not.toBe(login.refreshToken);
     expect(renewed.user.email).toBe('ana@correo.com');
-    await expect(refresh.execute(login.refreshToken)).rejects.toBeInstanceOf(
-      AuthenticationError,
-    );
+    await expect(refresh.execute(login.refreshToken)).rejects.toMatchObject({
+      code: 'SESION_YA_RENOVADA',
+    });
   });
 
   it('si se reutiliza un token revocado, cierra todas las sesiones del usuario', async () => {
-    const { refresh, login } = await loggedIn();
+    const { refresh, login, advance } = await loggedIn();
     const renewed = await refresh.execute(login.refreshToken);
+    advance(REUSE_GRACE_PERIOD_MS);
 
     await expect(refresh.execute(login.refreshToken)).rejects.toMatchObject({
       code: 'SESION_INVALIDA',
@@ -170,6 +174,37 @@ describe('RefreshSessionUseCase', () => {
     await expect(refresh.execute(renewed.refreshToken)).rejects.toMatchObject({
       code: 'SESION_INVALIDA',
     });
+  });
+
+  it('dentro del periodo de gracia rechaza el token viejo sin cerrar las demás sesiones', async () => {
+    const { refresh, login, advance } = await loggedIn();
+    const renewed = await refresh.execute(login.refreshToken);
+    advance(REUSE_GRACE_PERIOD_MS - 1);
+
+    await expect(refresh.execute(login.refreshToken)).rejects.toBeInstanceOf(
+      ConflictError,
+    );
+    await expect(refresh.execute(renewed.refreshToken)).resolves.toMatchObject({
+      user: { email: 'ana@correo.com' },
+    });
+  });
+
+  it('si dos peticiones renuevan con el mismo token a la vez, solo una lo logra', async () => {
+    const { refresh, login } = await loggedIn();
+
+    const results = await Promise.allSettled([
+      refresh.execute(login.refreshToken),
+      refresh.execute(login.refreshToken),
+    ]);
+
+    const renewed = results.filter((r) => r.status === 'fulfilled');
+    const rejected = results.filter((r) => r.status === 'rejected');
+    expect(renewed).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+    expect(rejected[0].reason).toMatchObject({ code: 'SESION_YA_RENOVADA' });
+    await expect(
+      refresh.execute(renewed[0].value.refreshToken),
+    ).resolves.toBeDefined();
   });
 
   it('rechaza un token vencido, inexistente o ausente', async () => {
@@ -199,7 +234,7 @@ describe('RefreshSessionUseCase', () => {
 });
 
 describe('LogOutUseCase', () => {
-  it('revoca la sesión y no hace nada si no hay sesión', async () => {
+  it('revoca la sesión al instante y no hace nada si no hay sesión', async () => {
     const { register, logIn, logOut, refresh } = setup();
     await register.execute(ana);
     const login = await logIn.execute({

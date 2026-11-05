@@ -131,6 +131,7 @@ describe('Autenticación (e2e)', () => {
   describe('sesión completa', () => {
     let accessToken: string;
     let cookie: string;
+    let previousCookie: string;
 
     it('POST /login entrega el access token y la cookie httpOnly', async () => {
       const res = await http
@@ -173,22 +174,44 @@ describe('Autenticación (e2e)', () => {
       const newCookie = refreshCookie(res);
       expect(newCookie.split(';')[0]).not.toBe(cookie.split(';')[0]);
       expect(res.body.tokenAcceso).toEqual(expect.any(String));
-
-      // El refresh token anterior ya no sirve.
-      await http
-        .post('/api/v1/auth/renovar')
-        .set('Cookie', cookie.split(';')[0])
-        .expect(401);
+      previousCookie = cookie;
       cookie = newCookie;
     });
 
-    it('al reutilizar un token viejo se cerraron todas las sesiones', async () => {
+    it('el token anterior, recién rotado, responde 409 sin borrar la cookie ni cerrar la sesión', async () => {
       const res = await http
         .post('/api/v1/auth/renovar')
-        .set('Cookie', cookie.split(';')[0])
-        .expect(401);
+        .set('Cookie', previousCookie.split(';')[0])
+        .expect(409);
 
-      expect(res.body.codigo).toBe('SESION_INVALIDA');
+      expect(res.body.codigo).toBe('SESION_YA_RENOVADA');
+      expect(res.headers['set-cookie']).toBeUndefined();
+
+      const renewed = await http
+        .post('/api/v1/auth/renovar')
+        .set('Cookie', cookie.split(';')[0])
+        .expect(200);
+      cookie = refreshCookie(renewed);
+    });
+
+    it('si dos pestañas renuevan a la vez con la misma cookie, solo una lo logra', async () => {
+      const current = cookie.split(';')[0];
+
+      const responses = await Promise.all([
+        http.post('/api/v1/auth/renovar').set('Cookie', current),
+        http.post('/api/v1/auth/renovar').set('Cookie', current),
+      ]);
+
+      expect(responses.map((r) => r.status).sort((a, b) => a - b)).toEqual([
+        200, 409,
+      ]);
+      const winner = responses.find((r) => r.status === 200);
+      if (!winner) throw new Error('Ninguna renovación tuvo éxito');
+      cookie = refreshCookie(winner);
+      await http
+        .post('/api/v1/auth/renovar')
+        .set('Cookie', cookie.split(';')[0])
+        .expect(200);
     });
 
     it('POST /logout cierra la sesión y borra la cookie', async () => {
@@ -204,10 +227,11 @@ describe('Autenticación (e2e)', () => {
         .expect(204);
 
       expect(refreshCookie(res)).toMatch(/refresh_token=;/);
-      await http
+      const reuse = await http
         .post('/api/v1/auth/renovar')
         .set('Cookie', current)
         .expect(401);
+      expect(reuse.body.codigo).toBe('SESION_INVALIDA');
     });
   });
 

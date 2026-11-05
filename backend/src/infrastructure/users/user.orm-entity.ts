@@ -9,7 +9,7 @@ import {
 
 @Entity('users')
 @Unique('UQ_users_email', ['email'])
-@Check('CHK_users_role', `"role" IN ('admin', 'staff', 'visitor')`)
+@Check('CHK_users_role', `"role" IN ('admin', 'staff', 'creator')`)
 export class UserOrmEntity {
   @PrimaryColumn({ type: 'uuid', primaryKeyConstraintName: 'PK_users' })
   id: string;

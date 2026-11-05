@@ -33,7 +33,7 @@ export class User {
   /**
    * Crea un usuario nuevo. Sin consentimiento explícito del aviso de
    * privacidad no se puede registrar (Ley 1581 de 2012). Todo usuario nuevo
-   * empieza como visitante.
+   * empieza como creador; el visitante no tiene cuenta.
    */
   static register(input: RegisterUserProps): User {
     if (!input.acceptsPrivacyNotice) {
@@ -56,7 +56,7 @@ export class User {
       name,
       email: normalizeEmail(input.email),
       passwordHash: input.passwordHash,
-      role: Role.Visitor,
+      role: Role.Creator,
       privacyConsentAt: input.now,
       privacyNoticeVersion: input.privacyNoticeVersion,
       createdAt: input.now,

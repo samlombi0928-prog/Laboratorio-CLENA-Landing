@@ -15,14 +15,14 @@ const validInput = {
 };
 
 describe('User', () => {
-  it('registra un visitante con el correo normalizado y el consentimiento', () => {
+  it('registra un creador con el correo normalizado y el consentimiento', () => {
     const user = User.register(validInput);
 
     expect(user.id).toBe('u-1');
     expect(user.name).toBe('Ana Pérez');
     expect(user.email).toBe('ana.perez@correo.com');
     expect(user.passwordHash).toBe('hash');
-    expect(user.role).toBe(Role.Visitor);
+    expect(user.role).toBe(Role.Creator);
     expect(user.privacyConsentAt).toBe(now);
     expect(user.privacyNoticeVersion).toBe('v1');
     expect(user.createdAt).toBe(now);

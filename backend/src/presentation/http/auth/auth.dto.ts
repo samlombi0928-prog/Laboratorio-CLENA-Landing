@@ -62,7 +62,7 @@ export class UserResponse {
   @ApiProperty({ example: 'ana@correo.com' })
   correo: string;
 
-  @ApiProperty({ enum: Role, example: Role.Visitor })
+  @ApiProperty({ enum: Role, example: Role.Creator })
   rol: Role;
 
   static from(user: UserView): UserResponse {

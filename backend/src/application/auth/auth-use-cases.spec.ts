@@ -60,7 +60,7 @@ const ana = {
 };
 
 describe('RegisterUserUseCase', () => {
-  it('registra un visitante con la contraseña en hash y la versión del aviso', async () => {
+  it('registra un creador con la contraseña en hash y la versión del aviso', async () => {
     const { register, users } = setup();
 
     const view = await register.execute(ana);
@@ -69,7 +69,7 @@ describe('RegisterUserUseCase', () => {
       id: 'id-1',
       name: 'Ana Pérez',
       email: 'ana@correo.com',
-      role: Role.Visitor,
+      role: Role.Creator,
     });
     const saved = users.users.get('id-1');
     expect(saved?.passwordHash).toBe('hashed:secreta123');
@@ -229,7 +229,7 @@ describe('GetProfileUseCase', () => {
       id,
       name: 'Ana Pérez',
       email: 'ana@correo.com',
-      role: Role.Visitor,
+      role: Role.Creator,
     });
     expect(profile).not.toHaveProperty('passwordHash');
   });

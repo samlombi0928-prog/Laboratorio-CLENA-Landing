@@ -69,7 +69,7 @@ El esquema de la base de datos solo cambia con migraciones: `synchronize` está 
 
 | Método y ruta | Sesión | Qué hace |
 |---|---|---|
-| `POST /api/v1/auth/registro` | No | Crea una cuenta de visitante. Cuerpo: `nombre`, `correo`, `contrasena`, `aceptaPrivacidad` |
+| `POST /api/v1/auth/registro` | No | Crea una cuenta de creador (el visitante no necesita cuenta). Cuerpo: `nombre`, `correo`, `contrasena`, `aceptaPrivacidad` |
 | `POST /api/v1/auth/login` | No | Cuerpo: `correo`, `contrasena`. Responde `tokenAcceso`, `expiraEn` y `usuario`, y deja el refresh token en una cookie |
 | `POST /api/v1/auth/renovar` | Cookie | Cambia el refresh token por uno nuevo y devuelve un access token nuevo |
 | `POST /api/v1/auth/logout` | Cookie | Cierra la sesión de ese dispositivo y borra la cookie |
@@ -91,7 +91,7 @@ Toda ruta exige un access token válido, salvo las marcadas con `@Public()`. Los
 
 ```ts
 @Public()                 // ruta abierta, sin sesión
-@Roles(Role.Admin)        // solo ciertos roles (admin, staff, visitor)
+@Roles(Role.Admin)        // solo ciertos roles (admin, staff, creator)
 @CurrentUser() user       // en un parámetro: { userId, role } de la sesión
 ```
 

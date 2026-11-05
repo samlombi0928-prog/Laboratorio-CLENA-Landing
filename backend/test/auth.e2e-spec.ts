@@ -72,7 +72,7 @@ describe('Autenticación (e2e)', () => {
   });
 
   describe('POST /api/v1/auth/registro', () => {
-    it('crea un visitante y no devuelve la contraseña', async () => {
+    it('crea un creador y no devuelve la contraseña', async () => {
       const res = await http
         .post('/api/v1/auth/registro')
         .send(ana)
@@ -82,7 +82,7 @@ describe('Autenticación (e2e)', () => {
         id: expect.any(String),
         nombre: 'Ana Pérez',
         correo: 'ana@correo.com',
-        rol: 'visitor',
+        rol: 'creator',
       });
     });
 
@@ -141,7 +141,7 @@ describe('Autenticación (e2e)', () => {
       expect(res.body).toMatchObject({
         tokenAcceso: expect.any(String),
         expiraEn: 900,
-        usuario: { correo: 'ana@correo.com', rol: 'visitor' },
+        usuario: { correo: 'ana@correo.com', rol: 'creator' },
       });
       expect(res.body).not.toHaveProperty('refreshToken');
 

@@ -74,7 +74,7 @@ export class AuthController {
   @Public()
   @Throttle(STRICT_THROTTLE)
   @Post('registro')
-  @ApiOperation({ summary: 'Crear una cuenta de visitante' })
+  @ApiOperation({ summary: 'Crear una cuenta de creador' })
   @ApiCreatedResponse({ type: UserResponse })
   @ApiConflictResponse({
     type: ErrorResponse,

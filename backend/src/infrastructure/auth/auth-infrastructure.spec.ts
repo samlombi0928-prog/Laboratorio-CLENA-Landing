@@ -37,7 +37,7 @@ describe('JwtTokenService', () => {
     });
     const { token } = await other.issueAccessToken({
       userId: 'u-1',
-      role: Role.Visitor,
+      role: Role.Creator,
     });
 
     await expect(service.verifyAccessToken(token)).rejects.toBeInstanceOf(

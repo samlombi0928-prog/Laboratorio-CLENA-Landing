@@ -210,6 +210,33 @@ describe('Recorridos (e2e)', () => {
         estado: 'draft',
       });
     });
+
+    it('acepta "portada" vacía como texto, como la envía Swagger sin archivo', async () => {
+      const res = await http
+        .post('/api/v1/recorridos')
+        .set('Authorization', `Bearer ${beaToken}`)
+        .field('titulo', 'Desde Swagger')
+        .field('portada', '')
+        .expect(201);
+
+      expect(res.body.portadaUrl).toBeNull();
+    });
+
+    it('rechaza "portada" como texto con contenido', async () => {
+      const res = await http
+        .post('/api/v1/recorridos')
+        .set('Authorization', `Bearer ${beaToken}`)
+        .field('titulo', 'Portada falsa')
+        .field('portada', 'https://otro-sitio.com/imagen.png')
+        .expect(400);
+
+      expect(res.body.detalles).toEqual([
+        {
+          campo: 'portada',
+          errores: ['La portada debe enviarse como archivo'],
+        },
+      ]);
+    });
   });
 
   describe('GET /api/v1/recorridos/mios', () => {

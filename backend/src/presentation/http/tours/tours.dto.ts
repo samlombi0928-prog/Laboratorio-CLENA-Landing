@@ -1,5 +1,11 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
+import {
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import type { TourView } from '../../../application/tours/tour-view.js';
 import {
   TOUR_DESCRIPTION_MAX_LENGTH,
@@ -30,10 +36,21 @@ export class CreateTourRequest {
     message: `La descripción puede tener máximo ${TOUR_DESCRIPTION_MAX_LENGTH} caracteres`,
   })
   descripcion?: string;
+
+  /**
+   * El archivo llega aparte, por multer. Swagger y algunos formularios envían
+   * "portada" como texto vacío cuando no se elige archivo: se acepta y se
+   * ignora. Cualquier otro texto se rechaza.
+   */
+  @IsOptional()
+  @IsIn([''], { message: 'La portada debe enviarse como archivo' })
+  portada?: string;
 }
 
 /** Formulario completo, solo para documentarlo en Swagger. */
-export class CreateTourForm extends CreateTourRequest {
+export class CreateTourForm extends OmitType(CreateTourRequest, [
+  'portada',
+] as const) {
   @ApiPropertyOptional({
     type: 'string',
     format: 'binary',

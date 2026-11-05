@@ -4,6 +4,16 @@
  */
 export type TipoFoto = '360' | 'parcial'
 
+/** Punto dentro de una escena que lleva a otra */
+export interface Conexion {
+  /** id de la escena de destino */
+  destino: string
+  /** Ángulo horizontal en grados: 0 es el centro, negativo a la izquierda */
+  yaw: number
+  /** Ángulo vertical en grados: 0 es el horizonte, negativo hacia abajo */
+  pitch: number
+}
+
 export interface Escena {
   id: string
   nombre: string
@@ -16,4 +26,5 @@ export interface Escena {
   anguloHorizontal?: number
   /** Solo fotos 360°: cuánto puede bajar la vista, en grados (negativo = bajo el horizonte) */
   inclinacionMinima?: number
+  conexiones: Conexion[]
 }

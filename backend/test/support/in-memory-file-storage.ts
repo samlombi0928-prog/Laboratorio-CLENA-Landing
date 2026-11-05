@@ -3,7 +3,7 @@ import type {
   FileStorage,
   SaveFileInput,
   StoredFile,
-} from '../../src/application/storage/file-storage.js';
+} from '../../src/application/storage/ports/file-storage.js';
 
 const EXTENSIONS = { 'image/jpeg': 'jpg', 'image/png': 'png' } as const;
 

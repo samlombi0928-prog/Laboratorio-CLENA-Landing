@@ -1,9 +1,15 @@
+import { VisorPanoramico } from './componentes/VisorPanoramico'
+import { escenasClena } from './datos/recorrido-clena'
+
 function App() {
+  const escena = escenasClena[0]
+
   return (
-    <main className="pagina-base">
-      <h1>Recorrido interactivo del CLENA</h1>
-      <p>Explora el complejo de la Aduana de Barranquilla y conoce su historia sala por sala.</p>
-      <p className="nota">Sitio en construcción.</p>
+    <main className="recorrido">
+      <h1 className="recorrido__titulo">
+        Recorrido CLENA <span aria-hidden="true">·</span> {escena.nombre}
+      </h1>
+      <VisorPanoramico escena={escena} />
     </main>
   )
 }

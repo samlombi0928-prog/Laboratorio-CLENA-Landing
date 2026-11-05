@@ -230,7 +230,7 @@ El stack (NestJS, React, PostgreSQL y Docker) es obligatorio según el enunciado
 |---|---|---|
 | Autenticación | JWT con access token de vida corta y refresh token para renovarlo | Planeado en #15 |
 | Contraseñas | Guardadas solo como hash (argon2 o bcrypt) | Planeado en #15 |
-| Autorización | Guards de NestJS por rol: administrador, personal del CLENA y visitante | Planeado en #15 y #24 |
+| Autorización | Guards de NestJS por rol, con los perfiles del backlog: el **visitante** no tiene cuenta y solo mira recorridos; el **creador** (`creator`) tiene cuenta y crea sus recorridos; el **personal del CLENA** (`staff`) edita el recorrido oficial; el **administrador** (`admin`) maneja roles y modera | Planeado en #15 y #24 |
 | Datos personales | Consentimiento explícito y aviso de privacidad al registrarse, y opción de eliminar la cuenta (Ley 1581 de 2012) | Planeado en #15 y #16 |
 | Secretos | Solo por variables de entorno. En el repositorio solo está `backend/.env.example`, sin valores reales; `.env` está en el `.gitignore` | Hecho |
 | Entrada de datos | Validación de todos los DTOs; se rechazan campos desconocidos | Hecho |
@@ -238,9 +238,23 @@ El stack (NestJS, React, PostgreSQL y Docker) es obligatorio según el enunciado
 | CORS | Solo se aceptan los orígenes configurados en `CORS_ORIGIN` | Hecho |
 | Logs | Se ocultan las cabeceras `authorization` y `cookie` | Hecho |
 
+### Requisito para el despliegue: frontend y API en el mismo sitio
+
+La sesión se renueva con un refresh token que viaja en una cookie `httpOnly` con `SameSite=Strict` (#15). El navegador solo envía esa cookie cuando el frontend y la API están en el **mismo sitio**, es decir, bajo el mismo dominio registrado. Si no se cumple, el inicio de sesión funciona, pero la sesión se pierde al recargar la página.
+
+| Despliegue | ¿Funciona? |
+|---|---|
+| Frontend y API en el mismo dominio, con la API detrás de un proxy en `/api` | Sí |
+| Subdominios del mismo dominio, por ejemplo `app.clena.co` y `api.clena.co` | Sí |
+| En desarrollo, `localhost:5173` y `localhost:3000` | Sí (el puerto no cuenta) |
+| Dominios distintos, por ejemplo `clena.vercel.app` y `clena-api.onrender.com` | No |
+| Dos subdominios de un servicio de hosting, por ejemplo `app.vercel.app` y `api.vercel.app` | No: esos servicios cuentan cada subdominio como un sitio distinto |
+
+Además, `CORS_ORIGIN` debe tener la dirección exacta del frontend, y en producción la API debe servirse por HTTPS, porque la cookie se marca como `Secure`.
+
 ## 7. Decisiones pendientes
 
 - **Almacenamiento de las imágenes de las escenas** (#18): disco local montado en Docker o un servicio de objetos. Lo define la persona de datos.
 - **Paginación, filtros y orden reutilizables** para los listados (#21 y #23).
-- **Despliegue y `docker-compose`**: lo define la persona de DevOps y se documenta en `docs/manual-operacion.md`.
+- **Despliegue y `docker-compose`**: lo define la persona de DevOps y se documenta en `docs/manual-operacion.md`. Debe cumplir el [requisito del mismo sitio](#requisito-para-el-despliegue-frontend-y-api-en-el-mismo-sitio).
 - **Modelo de datos**: se documenta en `docs/modelo-datos.md`.

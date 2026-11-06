@@ -73,7 +73,8 @@ body {
   z-index: 10;
   margin: 0;
   padding: 0.5rem 0.875rem;
-  max-width: calc(100% - 2rem);
+  /* Deja espacio para el botón "Salas" de la derecha */
+  max-width: calc(100% - 10rem);
   font-size: 1rem;
   font-weight: 600;
   color: #ffffff;

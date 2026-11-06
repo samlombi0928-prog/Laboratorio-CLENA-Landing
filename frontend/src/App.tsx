@@ -1,12 +1,13 @@
 import { Navigate, Route, Routes } from 'react-router'
+import { PaginaPortada } from './paginas/PaginaPortada'
 import { PaginaRecorrido } from './paginas/PaginaRecorrido'
 
 function App() {
   return (
     <Routes>
+      <Route path="/" element={<PaginaPortada />} />
       <Route path="/recorrido/clena/:escenaId?" element={<PaginaRecorrido />} />
-      {/* Mientras no exista la portada (HU-01), la raíz lleva directo al recorrido */}
-      <Route path="*" element={<Navigate to="/recorrido/clena" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

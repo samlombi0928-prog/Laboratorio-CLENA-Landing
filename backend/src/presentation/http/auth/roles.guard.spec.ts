@@ -37,7 +37,7 @@ describe('RolesGuard', () => {
     const guard = guardRequiring([Role.Admin]);
 
     expect(() =>
-      guard.canActivate(createContext({ userId: 'u-1', role: Role.Creator })),
+      guard.canActivate(createContext({ userId: 'u-1', role: Role.Public })),
     ).toThrow(AccessDeniedError);
     expect(() => guard.canActivate(createContext())).toThrow(AccessDeniedError);
   });

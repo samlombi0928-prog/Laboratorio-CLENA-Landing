@@ -19,6 +19,11 @@ describe('validateEnvironment', () => {
     expect(variables.CORS_ORIGIN).toBe('http://localhost:5173');
     expect(variables.JWT_ACCESS_TTL_SECONDS).toBe(900);
     expect(variables.REFRESH_TOKEN_TTL_DAYS).toBe(7);
+    expect(variables.SMTP_HOST).toBe('localhost');
+    expect(variables.SMTP_PORT).toBe(1025);
+    expect(variables.MAIL_FROM).toBe(
+      'CLENA Digital <no-responder@clena.local>',
+    );
   });
 
   it('exige un secreto de JWT de al menos 32 caracteres', () => {

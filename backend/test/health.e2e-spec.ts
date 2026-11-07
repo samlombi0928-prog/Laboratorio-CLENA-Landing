@@ -26,18 +26,22 @@ describe('Salud y documentación (e2e)', () => {
     await app.close();
   });
 
-  it('GET /health responde 200 cuando la base de datos está disponible', async () => {
+  it('GET /api/v1/health responde 200 cuando la base de datos está disponible', async () => {
     databaseChecker.isAvailable.mockResolvedValueOnce(true);
 
-    const res = await request(app.getHttpServer()).get('/health').expect(200);
+    const res = await request(app.getHttpServer())
+      .get('/api/v1/health')
+      .expect(200);
 
     expect(res.body).toMatchObject({ estado: 'ok', baseDatos: 'disponible' });
   });
 
-  it('GET /health responde 503 cuando la base de datos no responde', async () => {
+  it('GET /api/v1/health responde 503 cuando la base de datos no responde', async () => {
     databaseChecker.isAvailable.mockResolvedValueOnce(false);
 
-    const res = await request(app.getHttpServer()).get('/health').expect(503);
+    const res = await request(app.getHttpServer())
+      .get('/api/v1/health')
+      .expect(503);
 
     expect(res.body).toMatchObject({
       estado: 'degradado',
@@ -45,8 +49,8 @@ describe('Salud y documentación (e2e)', () => {
     });
   });
 
-  it('/health no lleva el prefijo /api/v1', async () => {
-    await request(app.getHttpServer()).get('/api/v1/health').expect(404);
+  it('/health sin el prefijo /api/v1 responde 404', async () => {
+    await request(app.getHttpServer()).get('/health').expect(404);
   });
 
   it('publica la documentación Swagger en /docs', async () => {
@@ -57,6 +61,6 @@ describe('Salud y documentación (e2e)', () => {
       .expect(200);
 
     expect(res.body.info.title).toBe('API Recorrido CLENA');
-    expect(res.body.paths).toHaveProperty('/health');
+    expect(res.body.paths).toHaveProperty('/api/v1/health');
   });
 });

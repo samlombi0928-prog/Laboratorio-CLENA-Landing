@@ -185,6 +185,21 @@ describe('UploadGalleryImageUseCase', () => {
     expect(storage.files.size).toBe(0);
   });
 
+  it('si además falla borrar el archivo, devuelve el error de la base de datos', async () => {
+    const { upload, storage, images } = setup();
+    vi.spyOn(images, 'save').mockRejectedValueOnce(new Error('sin base'));
+    vi.spyOn(storage, 'delete').mockRejectedValueOnce(new Error('sin disco'));
+
+    await expect(
+      upload.execute({
+        uploadedBy: 'u-1',
+        title: 'Falla doble',
+        altText: 'Falla doble',
+        image: PNG,
+      }),
+    ).rejects.toThrow('sin base');
+  });
+
   it('usa un id aleatorio y la fecha actual por defecto', async () => {
     const upload = new UploadGalleryImageUseCase(
       new InMemoryGalleryImageRepository(),

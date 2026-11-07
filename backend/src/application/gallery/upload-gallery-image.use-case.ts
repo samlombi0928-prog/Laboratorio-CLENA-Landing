@@ -87,7 +87,9 @@ export class UploadGalleryImageUseCase {
       await this.images.save(image);
     } catch (error) {
       // Si la base de datos falla, el archivo ya subido quedaría huérfano.
-      await this.storage.delete(stored.key);
+      // Si además falla el borrado, se ignora ese segundo error: el que
+      // importa es el de la base de datos y no debe quedar tapado.
+      await this.storage.delete(stored.key).catch(() => undefined);
       throw error;
     }
     return toGalleryImageView(image, this.storage);

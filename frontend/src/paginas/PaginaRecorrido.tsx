@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router'
 import { CuadroHistoria } from '../componentes/CuadroHistoria'
+import { IndiceSalas } from '../componentes/IndiceSalas'
 import { VisorPanoramico, type Salida } from '../componentes/VisorPanoramico'
 import { escenasClena } from '../datos/recorrido-clena'
 
@@ -34,6 +35,11 @@ export function PaginaRecorrido() {
       <h1 className="recorrido__titulo" aria-live="polite">
         Recorrido CLENA <span aria-hidden="true">·</span> {escena.nombre}
       </h1>
+      <IndiceSalas
+        salas={escenasClena}
+        idActual={escena.id}
+        rutaDe={(id) => `/recorrido/clena/${id}`}
+      />
       <VisorPanoramico
         escena={escena}
         salidas={salidas}

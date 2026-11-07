@@ -7,6 +7,7 @@ import {
   IsString,
   Max,
   Min,
+  MinLength,
   validateSync,
 } from 'class-validator';
 
@@ -67,6 +68,23 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   CORS_ORIGIN = 'http://localhost:5173';
+
+  /** Secreto con el que se firman los access tokens. */
+  @IsString()
+  @MinLength(32)
+  JWT_ACCESS_SECRET: string;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(60)
+  @Max(3600)
+  JWT_ACCESS_TTL_SECONDS = 900;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(90)
+  REFRESH_TOKEN_TTL_DAYS = 7;
 }
 
 /**

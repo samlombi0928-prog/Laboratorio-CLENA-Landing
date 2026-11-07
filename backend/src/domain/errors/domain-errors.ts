@@ -28,6 +28,27 @@ export class AccessDeniedError extends DomainError {
   }
 }
 
+export class ConflictError extends DomainError {
+  readonly code: string;
+
+  constructor(message: string, code = 'CONFLICTO') {
+    super(message);
+    this.code = code;
+  }
+}
+
+export class AuthenticationError extends DomainError {
+  readonly code: string;
+
+  constructor(
+    message = 'No se pudo verificar su identidad',
+    code = 'NO_AUTENTICADO',
+  ) {
+    super(message);
+    this.code = code;
+  }
+}
+
 export class BusinessRuleError extends DomainError {
   readonly code: string;
 

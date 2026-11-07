@@ -13,6 +13,8 @@ async function bootstrap() {
     app.get<ConfigService<EnvironmentVariables, true>>(ConfigService);
   app.enableCors({
     origin: config.get('CORS_ORIGIN', { infer: true }).split(','),
+    // Permite que el navegador envíe la cookie del refresh token.
+    credentials: true,
   });
   app.enableShutdownHooks();
   configureApp(app);

@@ -1,6 +1,8 @@
 import {
   AccessDeniedError,
+  AuthenticationError,
   BusinessRuleError,
+  ConflictError,
   DomainError,
   ResourceNotFoundError,
 } from './domain-errors.js';
@@ -21,6 +23,23 @@ describe('Errores de dominio', () => {
 
     expect(error.code).toBe('ACCESO_DENEGADO');
     expect(error.message).toBe('No tiene permiso para realizar esta acción');
+  });
+
+  it('ConflictError y AuthenticationError tienen código por defecto y permiten uno propio', () => {
+    expect(new ConflictError('Ya existe').code).toBe('CONFLICTO');
+    expect(new ConflictError('Ya existe', 'CORREO_YA_REGISTRADO').code).toBe(
+      'CORREO_YA_REGISTRADO',
+    );
+
+    const authentication = new AuthenticationError();
+    expect(authentication.code).toBe('NO_AUTENTICADO');
+    expect(authentication.message).toBe('No se pudo verificar su identidad');
+    expect(
+      new AuthenticationError(
+        'Credenciales inválidas',
+        'CREDENCIALES_INVALIDAS',
+      ).code,
+    ).toBe('CREDENCIALES_INVALIDAS');
   });
 
   it('BusinessRuleError permite un código propio', () => {

@@ -38,6 +38,15 @@ Están documentadas en [`.env.example`](.env.example). El archivo `.env` nunca s
 | `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME` | Conexión a PostgreSQL | `DB_PORT=5432`; el resto es obligatorio |
 | `LOG_LEVEL` | Nivel de los logs | `info` |
 | `CORS_ORIGIN` | Orígenes permitidos, separados por coma | `http://localhost:5173` |
+| `JWT_ACCESS_SECRET` | Secreto para firmar los access tokens (mínimo 32 caracteres, distinto en cada entorno) | Obligatorio |
+| `JWT_ACCESS_TTL_SECONDS` | Duración del access token, en segundos | `900` (15 minutos) |
+| `REFRESH_TOKEN_TTL_DAYS` | Duración de la sesión, en días | `7` |
+
+Para generar un secreto:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
+```
 
 ## Scripts
 
@@ -54,7 +63,40 @@ Están documentadas en [`.env.example`](.env.example). El archivo `.env` nunca s
 | `npm run migration:run` | Aplica las migraciones pendientes |
 | `npm run migration:revert` | Revierte la última migración |
 
-El esquema de la base de datos solo cambia con migraciones: `synchronize` está desactivado.
+El esquema de la base de datos solo cambia con migraciones: `synchronize` está desactivado. Después de clonar o de traer cambios, corra `npm run migration:run` antes de `npm run start:dev`.
+
+## Autenticación
+
+| Método y ruta | Sesión | Qué hace |
+|---|---|---|
+| `POST /api/v1/auth/registro` | No | Crea una cuenta de usuario público (el visitante no necesita cuenta). Cuerpo: `nombre`, `correo`, `contrasena`, `aceptaPrivacidad` |
+| `POST /api/v1/auth/login` | No | Cuerpo: `correo`, `contrasena`. Responde `tokenAcceso`, `expiraEn` y `usuario`, y deja el refresh token en una cookie |
+| `POST /api/v1/auth/renovar` | Cookie | Cambia el refresh token por uno nuevo y devuelve un access token nuevo |
+| `POST /api/v1/auth/logout` | Cookie | Cierra la sesión de ese dispositivo y borra la cookie |
+| `GET /api/v1/auth/perfil` | Access token | Datos del usuario con sesión iniciada |
+
+Cómo funciona la sesión:
+
+- **Access token:** JWT de vida corta. Se envía en la cabecera `Authorization: Bearer <tokenAcceso>`. El frontend lo guarda en memoria, no en `localStorage`.
+- **Refresh token:** va en la cookie `refresh_token`, que es `httpOnly` (JavaScript no la puede leer), `SameSite=Strict`, solo viaja a `/api/v1/auth` y en producción solo por HTTPS. El frontend debe hacer las peticiones a `/auth` con `credentials: 'include'`.
+- **Al recargar la página:** el frontend llama a `POST /renovar` para recuperar la sesión.
+- **Rotación:** cada renovación invalida el refresh token anterior. Si alguien usa uno ya invalidado, se cierran todas las sesiones de ese usuario.
+- **Varias pestañas:** si dos peticiones renuevan con la misma cookie, solo una lo logra. La otra recibe **409 `SESION_YA_RENOVADA`** y la cookie no se borra, porque el navegador ya tiene la nueva: el frontend solo debe volver a llamar a `POST /renovar`. Esto aplica durante 10 segundos después de la renovación; pasado ese tiempo, el token viejo cuenta como robado.
+- **En la base de datos:** las contraseñas se guardan con argon2id y de los refresh tokens solo se guarda su SHA-256.
+- **Límite de intentos:** registro e inicio de sesión aceptan 10 intentos por minuto por IP; después responden 429.
+- **Ley 1581:** el registro exige `aceptaPrivacidad: true`. Cada usuario queda con la fecha del consentimiento y la versión del aviso que aceptó (`PRIVACY_NOTICE_VERSION`, hoy provisional).
+
+### Proteger rutas
+
+Toda ruta exige un access token válido, salvo las marcadas con `@Public()`. Los decoradores están en `src/presentation/http/auth/auth.decorators.ts`:
+
+```ts
+@Public()                 // ruta abierta, sin sesión
+@Roles(Role.Admin)        // solo ciertos roles (admin, staff, public)
+@CurrentUser() user       // en un parámetro: { userId, role } de la sesión
+```
+
+Sin token, o con uno vencido, la API responde 401; con un rol que no alcanza, 403.
 
 ## Estructura
 

@@ -7,7 +7,9 @@ import {
 } from '@nestjs/common';
 import {
   AccessDeniedError,
+  AuthenticationError,
   BusinessRuleError,
+  ConflictError,
   ResourceNotFoundError,
 } from '../../../domain/errors/domain-errors.js';
 import { GlobalExceptionFilter } from './global-exception.filter.js';
@@ -41,6 +43,12 @@ describe('GlobalExceptionFilter', () => {
   it.each([
     [new ResourceNotFoundError('Recorrido', '7'), 404, 'RECURSO_NO_ENCONTRADO'],
     [new AccessDeniedError(), 403, 'ACCESO_DENEGADO'],
+    [new AuthenticationError(), 401, 'NO_AUTENTICADO'],
+    [
+      new ConflictError('Ya existe', 'CORREO_YA_REGISTRADO'),
+      409,
+      'CORREO_YA_REGISTRADO',
+    ],
     [new BusinessRuleError('Sin escenas', 'SIN_ESCENAS'), 422, 'SIN_ESCENAS'],
   ])('traduce %s a %i', (error, status, code) => {
     const { host, status: statusSpy, json } = createHost();

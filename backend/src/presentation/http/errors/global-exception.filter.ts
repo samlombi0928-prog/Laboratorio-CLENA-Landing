@@ -30,6 +30,12 @@ const HTTP_ERROR_CODES: Partial<Record<number, string>> = {
   [HttpStatus.INTERNAL_SERVER_ERROR]: 'ERROR_INTERNO',
 };
 
+/** Mensajes en español para errores que Nest o multer generan en inglés. */
+const HTTP_DEFAULT_MESSAGES: Partial<Record<number, string>> = {
+  [HttpStatus.PAYLOAD_TOO_LARGE]:
+    'El archivo supera el tamaño máximo permitido',
+};
+
 type ErrorBody = Pick<ErrorResponse, 'estado' | 'codigo' | 'mensaje'> & {
   detalles?: unknown;
 };
@@ -76,9 +82,14 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       const status = exception.getStatus();
       const content = exception.getResponse();
       const defaultCode = HTTP_ERROR_CODES[status] ?? `HTTP_${status}`;
+      const defaultMessage = HTTP_DEFAULT_MESSAGES[status];
 
       if (typeof content === 'string') {
-        return { estado: status, codigo: defaultCode, mensaje: content };
+        return {
+          estado: status,
+          codigo: defaultCode,
+          mensaje: defaultMessage ?? content,
+        };
       }
 
       const payload = content as {
@@ -89,6 +100,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       };
       const message =
         payload.mensaje ??
+        defaultMessage ??
         (Array.isArray(payload.message)
           ? payload.message.join('; ')
           : payload.message) ??

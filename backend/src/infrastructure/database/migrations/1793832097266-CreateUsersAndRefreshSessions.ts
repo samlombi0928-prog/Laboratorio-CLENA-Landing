@@ -20,7 +20,7 @@ export class CreateUsersAndRefreshSessions1793832097266 implements MigrationInte
         "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
         "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
         CONSTRAINT "UQ_users_email" UNIQUE ("email"),
-        CONSTRAINT "CHK_users_role" CHECK ("role" IN ('admin', 'staff', 'creator')),
+        CONSTRAINT "CHK_users_role" CHECK ("role" IN ('admin', 'staff', 'public')),
         CONSTRAINT "PK_users" PRIMARY KEY ("id")
       )`,
     );

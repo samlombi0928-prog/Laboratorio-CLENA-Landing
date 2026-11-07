@@ -1,7 +1,7 @@
 export enum Role {
   Admin = 'admin',
   Staff = 'staff',
-  Creator = 'creator',
+  Public = 'public',
 }
 
 export const ROLES = Object.values(Role);

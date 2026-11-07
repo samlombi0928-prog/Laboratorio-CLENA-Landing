@@ -23,7 +23,7 @@ La API queda disponible en http://localhost:3000:
 |---|---|
 | `/api/v1/...` | Endpoints de la API |
 | `/docs` | Documentación Swagger (el JSON está en `/docs/json`) |
-| `/health` | Estado de la API y de la base de datos (200 si está bien, 503 si la base de datos no responde) |
+| `/api/v1/health` | Estado de la API y de la base de datos (200 si está bien, 503 si la base de datos no responde) |
 
 Si falta una variable de entorno o tiene un valor inválido, la aplicación no arranca y el error dice cuál es.
 
@@ -69,7 +69,7 @@ El esquema de la base de datos solo cambia con migraciones: `synchronize` está 
 
 | Método y ruta | Sesión | Qué hace |
 |---|---|---|
-| `POST /api/v1/auth/registro` | No | Crea una cuenta de creador (el visitante no necesita cuenta). Cuerpo: `nombre`, `correo`, `contrasena`, `aceptaPrivacidad` |
+| `POST /api/v1/auth/registro` | No | Crea una cuenta de usuario público (el visitante no necesita cuenta). Cuerpo: `nombre`, `correo`, `contrasena`, `aceptaPrivacidad` |
 | `POST /api/v1/auth/login` | No | Cuerpo: `correo`, `contrasena`. Responde `tokenAcceso`, `expiraEn` y `usuario`, y deja el refresh token en una cookie |
 | `POST /api/v1/auth/renovar` | Cookie | Cambia el refresh token por uno nuevo y devuelve un access token nuevo |
 | `POST /api/v1/auth/logout` | Cookie | Cierra la sesión de ese dispositivo y borra la cookie |
@@ -92,7 +92,7 @@ Toda ruta exige un access token válido, salvo las marcadas con `@Public()`. Los
 
 ```ts
 @Public()                 // ruta abierta, sin sesión
-@Roles(Role.Admin)        // solo ciertos roles (admin, staff, creator)
+@Roles(Role.Admin)        // solo ciertos roles (admin, staff, public)
 @CurrentUser() user       // en un parámetro: { userId, role } de la sesión
 ```
 
@@ -138,7 +138,7 @@ Las dependencias apuntan siempre hacia el dominio. `npm run lint` falla si:
 
 Los nombres de código (clases, archivos, funciones y variables) van en inglés. Los mensajes para el usuario, los campos del JSON de respuesta y los comentarios van en español.
 
-El módulo de salud (`/health`) sirve de ejemplo:
+El módulo de salud (`/api/v1/health`) sirve de ejemplo:
 
 1. **Puerto** en `application/<module>/ports/`: una interfaz y su token (`Symbol`). Ejemplo: `DatabaseChecker` y `DATABASE_CHECKER`.
 2. **Caso de uso** en `application/<module>/<action>.use-case.ts`: una clase sin decoradores que recibe el puerto por el constructor. Ejemplo: `CheckHealthUseCase`.

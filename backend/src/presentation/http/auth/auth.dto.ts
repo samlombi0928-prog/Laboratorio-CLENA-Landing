@@ -75,7 +75,7 @@ export class UserResponse {
   @ApiProperty({ example: 'ana@correo.com' })
   correo: string;
 
-  @ApiProperty({ enum: Role, example: Role.Creator })
+  @ApiProperty({ enum: Role, example: Role.Public })
   rol: Role;
 
   static from(user: UserView): UserResponse {

@@ -14,7 +14,7 @@ export const DOCS_PATH = 'docs';
  * ejerciten la API tal como corre en producción.
  */
 export function configureApp(app: INestApplication): void {
-  app.setGlobalPrefix(API_PREFIX, { exclude: ['health'] });
+  app.setGlobalPrefix(API_PREFIX);
   app.use(cookieParser());
   app.useGlobalPipes(createValidationPipe());
   app.useGlobalFilters(new GlobalExceptionFilter());

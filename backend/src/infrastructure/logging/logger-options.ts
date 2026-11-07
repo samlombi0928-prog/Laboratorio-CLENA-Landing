@@ -12,7 +12,7 @@ export function createLoggerOptions(level: LogLevel): Params {
       level,
       redact: ['req.headers.authorization', 'req.headers.cookie'],
       autoLogging: {
-        ignore: (req: IncomingMessage) => req.url === '/health',
+        ignore: (req: IncomingMessage) => req.url === '/api/v1/health',
       },
     },
   };

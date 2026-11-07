@@ -1,0 +1,38 @@
+.visor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.visor__lienzo {
+  width: 100%;
+  height: 100%;
+}
+
+/* Botón dentro de la foto que lleva a otra sala */
+.salida {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.salida:hover {
+  background-color: rgba(0, 0, 0, 0.9);
+  transform: scale(1.05);
+}
+
+.salida__flecha {
+  font-size: 1.125rem;
+}

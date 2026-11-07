@@ -23,7 +23,7 @@ La API queda disponible en http://localhost:3000:
 |---|---|
 | `/api/v1/...` | Endpoints de la API |
 | `/docs` | Documentación Swagger (el JSON está en `/docs/json`) |
-| `/health` | Estado de la API y de la base de datos (200 si está bien, 503 si la base de datos no responde) |
+| `/api/v1/health` | Estado de la API y de la base de datos (200 si está bien, 503 si la base de datos no responde) |
 
 Si falta una variable de entorno o tiene un valor inválido, la aplicación no arranca y el error dice cuál es.
 
@@ -121,7 +121,7 @@ Las dependencias apuntan siempre hacia el dominio. `npm run lint` falla si:
 
 Los nombres de código (clases, archivos, funciones y variables) van en inglés. Los mensajes para el usuario, los campos del JSON de respuesta y los comentarios van en español.
 
-El módulo de salud (`/health`) sirve de ejemplo:
+El módulo de salud (`/api/v1/health`) sirve de ejemplo:
 
 1. **Puerto** en `application/<module>/ports/`: una interfaz y su token (`Symbol`). Ejemplo: `DatabaseChecker` y `DATABASE_CHECKER`.
 2. **Caso de uso** en `application/<module>/<action>.use-case.ts`: una clase sin decoradores que recibe el puerto por el constructor. Ejemplo: `CheckHealthUseCase`.

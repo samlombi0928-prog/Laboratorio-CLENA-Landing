@@ -1,10 +1,14 @@
+import { Navigate, Route, Routes } from 'react-router'
+import { PaginaPortada } from './paginas/PaginaPortada'
+import { PaginaRecorrido } from './paginas/PaginaRecorrido'
+
 function App() {
   return (
-    <main className="pagina-base">
-      <h1>Recorrido interactivo del CLENA</h1>
-      <p>Explora el complejo de la Aduana de Barranquilla y conoce su historia sala por sala.</p>
-      <p className="nota">Sitio en construcción.</p>
-    </main>
+    <Routes>
+      <Route path="/" element={<PaginaPortada />} />
+      <Route path="/recorrido/clena/:escenaId?" element={<PaginaRecorrido />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
 

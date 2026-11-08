@@ -10,13 +10,12 @@
   background-color: #1a1a1a;
 }
 
-/* Foto de la fachada, desenfocada un poco porque la imagen actual es pequeña */
+/* Foto de la fachada de la Aduana */
 .portada::before {
   content: '';
   position: absolute;
-  inset: -1rem;
+  inset: 0;
   background: url('/portada/fachada.jpg') center / cover no-repeat;
-  filter: blur(3px);
 }
 
 /* Oscurece la parte de abajo para que el texto se lea bien */

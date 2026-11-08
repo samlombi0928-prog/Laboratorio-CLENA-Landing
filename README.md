@@ -58,7 +58,7 @@ frontend/    Aplicación web en React
 docs/        Informes del proyecto en PDF e imágenes (docs/img/)
 ```
 
-Las fotos y carpetas de la raíz (`ADUANA *.jpg`, `problema/`, `propuesta/`…) son el material original del equipo de Introducción.
+Las carpetas `problema/` y `propuesta/` de la raíz son el material original del equipo de Introducción. Las fotos originales de la visita están en el Drive del equipo; en el repositorio solo quedan las versiones comprimidas que usa el recorrido (`frontend/public/escenas/`).
 
 ## Cómo levantar el proyecto
 

@@ -3,6 +3,11 @@
   --color-texto: #1a1a1a;
   --color-texto-suave: #4a4a4a;
   --color-foco: #005fcc;
+  --color-superficie: #f6f4ef;
+  --color-borde: #8a8578;
+  --color-acento: #f2c94c;
+  --color-error: #b3261e;
+  --color-error-fondo: #fdecea;
 
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
@@ -16,6 +21,10 @@
     --color-texto: #f2f2f2;
     --color-texto-suave: #c4c4c4;
     --color-foco: #66a8ff;
+    --color-superficie: #1e1e1e;
+    --color-borde: #8f8f8f;
+    --color-error: #ffb4ab;
+    --color-error-fondo: #3b1714;
   }
 }
 

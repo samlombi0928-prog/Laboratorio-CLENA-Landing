@@ -90,7 +90,7 @@ export class RegistrationsController {
   @ApiOperation({
     summary: 'Ver los inscritos de un evento',
     description:
-      'Solo para el personal del CLENA y el administrador. Paginado y con búsqueda por nombre o correo.',
+      'Solo para el personal del CLENA y el administrador. Paginado (pagina, porPagina) y con búsqueda por nombre o correo (buscar).',
   })
   @ApiOkResponse({ type: RegistrationPageResponse })
   @ApiUnauthorizedResponse({ type: ErrorResponse })
@@ -101,9 +101,10 @@ export class RegistrationsController {
     @Query() query: ListRegistrationsQuery,
   ): Promise<RegistrationPageResponse> {
     assertEventId(eventId);
-    const page = await this.listRegistrations.execute(eventId, {
+    const page = await this.listRegistrations.execute({
+      eventId,
       page: query.pagina,
-      pageSize: query.tamano,
+      pageSize: query.porPagina,
       search: query.buscar || undefined,
     });
     return RegistrationPageResponse.from(page);

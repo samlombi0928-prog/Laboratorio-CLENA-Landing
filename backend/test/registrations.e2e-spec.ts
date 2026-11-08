@@ -286,15 +286,21 @@ describe('Inscripciones (e2e)', () => {
 
     it('el personal ve los inscritos paginados', async () => {
       const res = await http
-        .get(`${url}?pagina=1&tamano=2`)
+        .get(`${url}?pagina=1&porPagina=2`)
         .set('Authorization', `Bearer ${staffToken}`)
         .expect(200);
 
-      expect(res.body).toMatchObject({ total: 3, pagina: 1, tamano: 2 });
-      expect(
-        res.body.elementos.map((r: { nombre: string }) => r.nombre),
-      ).toEqual(['Ana Pérez', 'Bea Gómez']);
-      expect(res.body.elementos[0]).toEqual({
+      expect(res.body).toMatchObject({
+        total: 3,
+        pagina: 1,
+        porPagina: 2,
+        totalPaginas: 2,
+      });
+      expect(res.body.datos.map((r: { nombre: string }) => r.nombre)).toEqual([
+        'Ana Pérez',
+        'Bea Gómez',
+      ]);
+      expect(res.body.datos[0]).toEqual({
         id: expect.any(String),
         nombre: 'Ana Pérez',
         correo: 'ana@correo.com',
@@ -309,7 +315,7 @@ describe('Inscripciones (e2e)', () => {
         .expect(200);
 
       expect(res.body.total).toBe(1);
-      expect(res.body.elementos[0].correo).toBe('carlos@correo.com');
+      expect(res.body.datos[0].correo).toBe('carlos@correo.com');
     });
 
     it('sin sesión responde 401 y un usuario público 403', async () => {
@@ -322,14 +328,14 @@ describe('Inscripciones (e2e)', () => {
 
     it('rechaza una paginación inválida', async () => {
       const res = await http
-        .get(`${url}?pagina=0&tamano=500`)
+        .get(`${url}?pagina=0&porPagina=500`)
         .set('Authorization', `Bearer ${staffToken}`)
         .expect(400);
 
       expect(res.body.detalles).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ campo: 'pagina' }),
-          expect.objectContaining({ campo: 'tamano' }),
+          expect.objectContaining({ campo: 'porPagina' }),
         ]),
       );
     });

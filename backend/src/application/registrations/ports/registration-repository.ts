@@ -1,9 +1,16 @@
 import type { Registration } from '../../../domain/registrations/registration.js';
-import type { Page, PageRequest } from '../../common/page.js';
+import type { PageRequest } from '../../common/pagination.js';
 
 export interface RegistrationQuery extends PageRequest {
   /** Filtra por nombre o correo, sin distinguir mayúsculas. */
   search?: string;
+}
+
+export interface RegistrationPageResult {
+  /** Solo las inscripciones de la página pedida. */
+  items: Registration[];
+  /** Total de inscripciones que cumplen el filtro, en todas las páginas. */
+  total: number;
 }
 
 export interface RegistrationRepository {
@@ -21,7 +28,7 @@ export interface RegistrationRepository {
   findByEvent(
     eventId: string,
     query: RegistrationQuery,
-  ): Promise<Page<Registration>>;
+  ): Promise<RegistrationPageResult>;
 }
 
 export const REGISTRATION_REPOSITORY = Symbol('RegistrationRepository');

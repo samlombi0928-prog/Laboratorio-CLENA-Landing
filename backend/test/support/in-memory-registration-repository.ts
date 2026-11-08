@@ -1,5 +1,5 @@
-import type { Page } from '../../src/application/common/page.js';
 import type {
+  RegistrationPageResult,
   RegistrationQuery,
   RegistrationRepository,
 } from '../../src/application/registrations/ports/registration-repository.js';
@@ -32,7 +32,7 @@ export class InMemoryRegistrationRepository implements RegistrationRepository {
   findByEvent(
     eventId: string,
     query: RegistrationQuery,
-  ): Promise<Page<Registration>> {
+  ): Promise<RegistrationPageResult> {
     const search = query.search?.toLowerCase();
     const matching = this.registrations
       .filter((r) => r.eventId === eventId)
@@ -47,8 +47,6 @@ export class InMemoryRegistrationRepository implements RegistrationRepository {
     return Promise.resolve({
       items: matching.slice(start, start + query.pageSize),
       total: matching.length,
-      page: query.page,
-      pageSize: query.pageSize,
     });
   }
 }

@@ -1,6 +1,6 @@
 import { QueryFailedError, type Repository } from 'typeorm';
-import type { Page } from '../../application/common/page.js';
 import type {
+  RegistrationPageResult,
   RegistrationQuery,
   RegistrationRepository,
 } from '../../application/registrations/ports/registration-repository.js';
@@ -54,7 +54,7 @@ export class TypeOrmRegistrationRepository implements RegistrationRepository {
   async findByEvent(
     eventId: string,
     query: RegistrationQuery,
-  ): Promise<Page<Registration>> {
+  ): Promise<RegistrationPageResult> {
     const builder = this.repository
       .createQueryBuilder('registration')
       .where('registration.eventId = :eventId', { eventId })
@@ -74,8 +74,6 @@ export class TypeOrmRegistrationRepository implements RegistrationRepository {
     return {
       items: rows.map((row) => RegistrationMapper.toDomain(row)),
       total,
-      page: query.page,
-      pageSize: query.pageSize,
     };
   }
 }

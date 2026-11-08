@@ -1,11 +1,19 @@
 import { ResourceNotFoundError } from '../../domain/errors/domain-errors.js';
 import type { Registration } from '../../domain/registrations/registration.js';
-import type { Page } from '../common/page.js';
+import {
+  buildPage,
+  normalizePageRequest,
+  type Page,
+  type PageRequest,
+} from '../common/pagination.js';
 import type { EventRepository } from '../events/ports/event-repository.js';
-import type {
-  RegistrationQuery,
-  RegistrationRepository,
-} from './ports/registration-repository.js';
+import type { RegistrationRepository } from './ports/registration-repository.js';
+
+export interface ListEventRegistrationsInput extends Partial<PageRequest> {
+  eventId: string;
+  /** Filtra por nombre o correo. */
+  search?: string;
+}
 
 export interface RegistrationView {
   id: string;
@@ -22,16 +30,19 @@ export class ListEventRegistrationsUseCase {
   ) {}
 
   async execute(
-    eventId: string,
-    query: RegistrationQuery,
+    input: ListEventRegistrationsInput,
   ): Promise<Page<RegistrationView>> {
-    const event = await this.events.findById(eventId);
+    const event = await this.events.findById(input.eventId);
     if (!event) {
-      throw new ResourceNotFoundError('Evento', eventId);
+      throw new ResourceNotFoundError('Evento', input.eventId);
     }
 
-    const page = await this.registrations.findByEvent(eventId, query);
-    return { ...page, items: page.items.map(toRegistrationView) };
+    const request = normalizePageRequest(input);
+    const { items, total } = await this.registrations.findByEvent(
+      input.eventId,
+      { ...request, search: input.search },
+    );
+    return buildPage(items.map(toRegistrationView), request, total);
   }
 }
 

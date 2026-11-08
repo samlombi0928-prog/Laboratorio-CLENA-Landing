@@ -1,17 +1,23 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsEmail,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
+  Min,
 } from 'class-validator';
-import type { Page } from '../../../application/common/page.js';
+import {
+  DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE,
+  type Page,
+} from '../../../application/common/pagination.js';
 import type { RegistrationView } from '../../../application/registrations/list-event-registrations.use-case.js';
 import type { RegistrationResult } from '../../../application/registrations/register-for-event.use-case.js';
-import { PageInfo, PaginationQuery } from '../common/pagination.dto.js';
 
 /** Quita los espacios de los extremos antes de validar. */
 const Trim = () =>
@@ -79,7 +85,30 @@ export class RegistrationCreatedResponse {
   }
 }
 
-export class ListRegistrationsQuery extends PaginationQuery {
+/** Parámetros de la URL para listar los inscritos, como en secciones y galería. */
+export class ListRegistrationsQuery {
+  @ApiPropertyOptional({ minimum: 1, default: 1, example: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'La página debe ser un número entero' })
+  @Min(1, { message: 'La página debe ser 1 o mayor' })
+  pagina?: number;
+
+  @ApiPropertyOptional({
+    minimum: 1,
+    maximum: MAX_PAGE_SIZE,
+    default: DEFAULT_PAGE_SIZE,
+    example: DEFAULT_PAGE_SIZE,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'El tamaño de página debe ser un número entero' })
+  @Min(1, { message: 'El tamaño de página debe ser 1 o mayor' })
+  @Max(MAX_PAGE_SIZE, {
+    message: `El tamaño de página puede ser máximo ${MAX_PAGE_SIZE}`,
+  })
+  porPagina?: number;
+
   @ApiPropertyOptional({
     example: 'ana',
     description: 'Busca por nombre o correo',
@@ -105,21 +134,38 @@ export class RegistrationResponse {
   creadoEn: Date;
 }
 
-export class RegistrationPageResponse extends PageInfo {
+export class RegistrationPageResponse {
   @ApiProperty({ type: RegistrationResponse, isArray: true })
-  elementos: RegistrationResponse[];
+  datos: RegistrationResponse[];
+
+  @ApiProperty({ example: 1 })
+  pagina: number;
+
+  @ApiProperty({ example: DEFAULT_PAGE_SIZE })
+  porPagina: number;
+
+  @ApiProperty({
+    example: 10,
+    description:
+      'Total de inscritos que cumplen el filtro, en todas las páginas',
+  })
+  total: number;
+
+  @ApiProperty({ example: 1 })
+  totalPaginas: number;
 
   static from(page: Page<RegistrationView>): RegistrationPageResponse {
     return {
-      elementos: page.items.map((registration) => ({
+      datos: page.items.map((registration) => ({
         id: registration.id,
         nombre: registration.name,
         correo: registration.email,
         creadoEn: registration.createdAt,
       })),
-      total: page.total,
       pagina: page.page,
-      tamano: page.pageSize,
+      porPagina: page.pageSize,
+      total: page.total,
+      totalPaginas: page.totalPages,
     };
   }
 }

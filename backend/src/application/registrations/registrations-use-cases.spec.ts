@@ -1,6 +1,7 @@
 import { InMemoryEventRepository } from '../../../test/support/in-memory-event-repository.js';
 import { InMemoryMailer } from '../../../test/support/in-memory-mailer.js';
 import { InMemoryRegistrationRepository } from '../../../test/support/in-memory-registration-repository.js';
+import { DEFAULT_PAGE_SIZE } from '../common/pagination.js';
 import { AgendaEvent } from '../../domain/events/agenda-event.js';
 import {
   BusinessRuleError,
@@ -156,11 +157,16 @@ describe('Inscripciones', () => {
     });
 
     it('devuelve los inscritos paginados, en orden de inscripción', async () => {
-      const page = await list.execute('e-1', { page: 1, pageSize: 2 });
+      const page = await list.execute({
+        eventId: 'e-1',
+        page: 1,
+        pageSize: 2,
+      });
 
       expect(page.total).toBe(3);
       expect(page.page).toBe(1);
       expect(page.pageSize).toBe(2);
+      expect(page.totalPages).toBe(2);
       expect(page.items.map((r) => r.name)).toEqual(['Ana Pérez', 'Bea Gómez']);
       expect(page.items[0]).toEqual({
         id: 'r-1',
@@ -171,7 +177,8 @@ describe('Inscripciones', () => {
     });
 
     it('filtra por nombre o correo', async () => {
-      const page = await list.execute('e-1', {
+      const page = await list.execute({
+        eventId: 'e-1',
         page: 1,
         pageSize: 10,
         search: 'carlos',
@@ -181,10 +188,18 @@ describe('Inscripciones', () => {
       expect(page.total).toBe(1);
     });
 
+    it('sin página ni tamaño usa los valores por defecto de los listados', async () => {
+      const page = await list.execute({ eventId: 'e-1' });
+
+      expect(page.page).toBe(1);
+      expect(page.pageSize).toBe(DEFAULT_PAGE_SIZE);
+      expect(page.items).toHaveLength(3);
+    });
+
     it('responde que no existe si el evento no existe', async () => {
-      await expect(
-        list.execute('no-existe', { page: 1, pageSize: 10 }),
-      ).rejects.toThrow(ResourceNotFoundError);
+      await expect(list.execute({ eventId: 'no-existe' })).rejects.toThrow(
+        ResourceNotFoundError,
+      );
     });
   });
 });

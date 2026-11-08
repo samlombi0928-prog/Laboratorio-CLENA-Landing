@@ -105,7 +105,7 @@ Sin token, o con uno vencido, la API responde 401; con un rol que no alcanza, 40
 | Método y ruta | Sesión | Qué hace |
 |---|---|---|
 | `POST /api/v1/eventos/:id/inscripciones` | No | Inscribe a una persona. Cuerpo: `nombre`, `correo`, `aceptaPrivacidad`. Envía un correo de confirmación |
-| `GET /api/v1/eventos/:id/inscripciones` | Personal o administrador | Inscritos del evento, en orden de inscripción. Acepta `pagina`, `tamano` y `buscar` (por nombre o correo) |
+| `GET /api/v1/eventos/:id/inscripciones` | Personal o administrador | Inscritos del evento, en orden de inscripción. Acepta `pagina`, `porPagina` y `buscar` (por nombre o correo) |
 
 Reglas:
 
@@ -128,13 +128,13 @@ Los correos se ven en http://localhost:8025.
 
 ### Paginación de los listados
 
-Todo listado recibe `?pagina=1&tamano=20` (`tamano` máximo 100) y responde con la misma forma:
+Los listados reciben `?pagina=1&porPagina=12` (`porPagina` máximo 50) y responden con la misma forma:
 
 ```json
-{ "elementos": [], "total": 42, "pagina": 1, "tamano": 20 }
+{ "datos": [], "pagina": 1, "porPagina": 12, "total": 42, "totalPaginas": 4 }
 ```
 
-En el código, `PaginationQuery` y `PageInfo` están en `src/presentation/http/common/pagination.dto.ts`, y `Page` en `src/application/common/page.ts`.
+En el código, `normalizePageRequest`, `buildPage` y `Page` están en `src/application/common/pagination.ts`; lo usan también la galería y las secciones.
 
 ## Estructura
 

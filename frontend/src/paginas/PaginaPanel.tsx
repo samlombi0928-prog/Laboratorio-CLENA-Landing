@@ -6,7 +6,7 @@ import './PaginaFormulario.css'
 
 /** Módulos del panel. Cada funcionalidad agrega aquí el enlace a su pantalla cuando esté lista. */
 const MODULOS = [
-  { titulo: 'Secciones de la landing', descripcion: 'Espacios, servicios y horarios', ruta: null },
+  { titulo: 'Secciones de la landing', descripcion: 'Espacios, servicios y horarios', ruta: '/panel/secciones' },
   { titulo: 'Agenda de eventos', descripcion: 'Eventos y fechas de publicación', ruta: null },
   { titulo: 'Galería', descripcion: 'Subir y eliminar imágenes', ruta: null },
   { titulo: 'Inscripciones', descripcion: 'Personas inscritas a cada evento', ruta: null },

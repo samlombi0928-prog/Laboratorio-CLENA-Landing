@@ -1,11 +1,20 @@
 import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsIn,
+  IsInt,
+  Max,
+  Min,
   IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
 } from 'class-validator';
+import {
+  DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE,
+  type Page,
+} from '../../../application/common/pagination.js';
 import type { TourView } from '../../../application/tours/tour-view.js';
 import {
   TOUR_DESCRIPTION_MAX_LENGTH,
@@ -94,6 +103,61 @@ export class TourResponse {
       portadaUrl: tour.coverUrl,
       creadoEn: tour.createdAt,
       actualizadoEn: tour.updatedAt,
+    };
+  }
+}
+
+/** Parámetros de la URL para "Mis recorridos", como en secciones y galería. */
+export class ListMyToursQuery {
+  @ApiPropertyOptional({ minimum: 1, default: 1, example: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'La página debe ser un número entero' })
+  @Min(1, { message: 'La página debe ser 1 o mayor' })
+  pagina?: number;
+
+  @ApiPropertyOptional({
+    minimum: 1,
+    maximum: MAX_PAGE_SIZE,
+    default: DEFAULT_PAGE_SIZE,
+    example: DEFAULT_PAGE_SIZE,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'El tamaño de página debe ser un número entero' })
+  @Min(1, { message: 'El tamaño de página debe ser 1 o mayor' })
+  @Max(MAX_PAGE_SIZE, {
+    message: `El tamaño de página puede ser máximo ${MAX_PAGE_SIZE}`,
+  })
+  porPagina?: number;
+}
+
+export class TourPageResponse {
+  @ApiProperty({ type: TourResponse, isArray: true })
+  datos: TourResponse[];
+
+  @ApiProperty({ example: 1 })
+  pagina: number;
+
+  @ApiProperty({ example: DEFAULT_PAGE_SIZE })
+  porPagina: number;
+
+  @ApiProperty({
+    example: 3,
+    description: 'Total de recorridos del usuario, en todas las páginas',
+  })
+  total: number;
+
+  @ApiProperty({ example: 1 })
+  totalPaginas: number;
+
+  static from(page: Page<TourView>): TourPageResponse {
+    return {
+      datos: page.items.map((tour) => TourResponse.from(tour)),
+      pagina: page.page,
+      porPagina: page.pageSize,
+      total: page.total,
+      totalPaginas: page.totalPages,
     };
   }
 }

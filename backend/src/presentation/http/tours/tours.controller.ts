@@ -2,8 +2,10 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   Param,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -28,7 +30,10 @@ import {
 } from '../../../application/tours/create-tour.use-case.js';
 import { GetTourUseCase } from '../../../application/tours/get-tour.use-case.js';
 import { ListMyToursUseCase } from '../../../application/tours/list-my-tours.use-case.js';
-import { ResourceNotFoundError } from '../../../domain/errors/domain-errors.js';
+import {
+  AuthenticationError,
+  ResourceNotFoundError,
+} from '../../../domain/errors/domain-errors.js';
 import {
   type AuthenticatedUser,
   CurrentUser,
@@ -38,6 +43,8 @@ import { ErrorResponse } from '../errors/error-response.js';
 import {
   CreateTourForm,
   CreateTourRequest,
+  ListMyToursQuery,
+  TourPageResponse,
   TourResponse,
 } from './tours.dto.js';
 
@@ -97,15 +104,20 @@ export class ToursController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Mis recorridos',
-    description: 'Recorridos del usuario, incluidos los borradores.',
+    description:
+      'Recorridos del usuario, incluidos los borradores, del más reciente al más antiguo. Paginado (pagina, porPagina).',
   })
-  @ApiOkResponse({ type: TourResponse, isArray: true })
+  @ApiOkResponse({ type: TourPageResponse })
   @ApiUnauthorizedResponse({ type: ErrorResponse })
   async listMine(
     @CurrentUser() user: AuthenticatedUser,
-  ): Promise<TourResponse[]> {
-    const tours = await this.listMyTours.execute(user.userId);
-    return tours.map((tour) => TourResponse.from(tour));
+    @Query() query: ListMyToursQuery,
+  ): Promise<TourPageResponse> {
+    const page = await this.listMyTours.execute(user.userId, {
+      page: query.pagina,
+      pageSize: query.porPagina,
+    });
+    return TourPageResponse.from(page);
   }
 
   @Public()
@@ -121,10 +133,23 @@ export class ToursController {
     type: ErrorResponse,
     description: 'No existe o es un borrador de otro usuario',
   })
+  @ApiUnauthorizedResponse({
+    type: ErrorResponse,
+    description: 'Mandó un token vencido o inválido (TOKEN_INVALIDO)',
+  })
   async findOne(
     @Param('id') id: string,
+    @Headers('authorization') authorization?: string,
     @CurrentUser() user?: AuthenticatedUser,
   ): Promise<TourResponse> {
+    // Si mandó un token y no sirve, se avisa con 401 para que el cliente
+    // renueve la sesión: con un 404, el creador creería que su borrador no existe.
+    if (authorization?.startsWith('Bearer ') && !user) {
+      throw new AuthenticationError(
+        'El token de acceso venció o no es válido',
+        'TOKEN_INVALIDO',
+      );
+    }
     if (!isUUID(id)) {
       throw new ResourceNotFoundError('Recorrido', id);
     }

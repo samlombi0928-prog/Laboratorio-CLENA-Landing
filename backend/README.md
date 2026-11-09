@@ -105,8 +105,8 @@ En una ruta `@Public()`, si llega un access token válido, `@CurrentUser()` igua
 | Método y ruta | Sesión | Qué hace |
 |---|---|---|
 | `POST /api/v1/recorridos` | Access token | Crea un recorrido en borrador. Campos: `titulo` (obligatorio, máximo 120 caracteres), `descripcion` (opcional, máximo 2000) y `portada` (opcional) |
-| `GET /api/v1/recorridos/mios` | Access token | Recorridos del usuario, incluidos los borradores, del más reciente al más antiguo |
-| `GET /api/v1/recorridos/:id` | Opcional | Un recorrido publicado lo ve cualquiera; un borrador, solo su creador. Para cualquier otro responde 404, como si no existiera |
+| `GET /api/v1/recorridos/mios` | Access token | Recorridos del usuario, incluidos los borradores, del más reciente al más antiguo. Paginado con `pagina` y `porPagina`; responde `{ datos, pagina, porPagina, total, totalPaginas }` |
+| `GET /api/v1/recorridos/:id` | Opcional | Un recorrido publicado lo ve cualquiera; un borrador, solo su creador. Para cualquier otro responde 404, como si no existiera. Si se manda un token vencido o inválido, responde 401 para que el frontend renueve la sesión |
 
 Cómo funciona la portada:
 

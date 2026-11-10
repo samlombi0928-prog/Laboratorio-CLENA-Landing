@@ -179,6 +179,41 @@ Cómo funciona la portada:
 - **Validación:** solo JPG o PNG, revisando los primeros bytes del archivo y no la extensión. Máximo 5 MB. Un archivo más grande responde 413; uno que no es imagen, 422.
 - **Almacenamiento:** se guarda con el puerto `FileStorage` (`src/application/storage/ports/`). En la base de datos queda la clave del archivo (`cover_key`) y la respuesta trae la URL en `portadaUrl`.
 
+## Galería
+
+| Método y ruta | Quién | Qué hace |
+|---|---|---|
+| `GET /api/v1/galeria` | Cualquiera, sin sesión | Lista las imágenes, paginada. Parámetros opcionales: `pagina` (por defecto 1), `porPagina` (por defecto 12, máximo 50), `orden` (`recientes` o `antiguas`, por fecha de subida) y `buscar` (texto que debe contener el título) |
+| `POST /api/v1/galeria` | Personal del CLENA y administradores | Sube una imagen. Campos: `titulo` (máximo 120 caracteres), `textoAlternativo` (máximo 250) e `imagen` (el archivo), todos obligatorios |
+| `DELETE /api/v1/galeria/:id` | Personal del CLENA y administradores | Elimina la imagen de la galería y su archivo del almacenamiento. Responde 204 |
+
+La lista responde con esta forma, y `totalPaginas` permite armar la paginación en el frontend:
+
+```json
+{
+  "datos": [
+    {
+      "id": "7d0c2f4e-1b9a-4f3e-8c2d-5a6b7c8d9e0f",
+      "titulo": "Fachada de la Aduana",
+      "textoAlternativo": "Fachada de ladrillo de la antigua Aduana vista desde la plaza",
+      "imagenUrl": "http://localhost:3000/archivos/gallery/7d0c2f4e-….jpg",
+      "creadoEn": "2026-11-07T12:00:00.000Z"
+    }
+  ],
+  "pagina": 1,
+  "porPagina": 12,
+  "total": 25,
+  "totalPaginas": 3
+}
+```
+
+Cómo funciona la subida:
+
+- **Formato:** `multipart/form-data`, con la imagen en el campo `imagen`.
+- **Validación:** solo JPG o PNG, revisando los primeros bytes del archivo y no la extensión. Máximo 10 MB. Un archivo más grande responde 413; uno que no es JPG ni PNG, o la falta de imagen, 422, y el mensaje explica el motivo. Todo se valida antes de guardar el archivo, así que una petición inválida no deja archivos sueltos.
+- **Base de datos:** la tabla `gallery_images` guarda la clave del archivo (`image_key`), nunca la URL. Si falla el guardado en la base de datos, el archivo recién subido se borra.
+- **Cuenta eliminada (#16):** `uploaded_by` queda en `NULL` y la imagen se conserva, porque es contenido del CLENA y no de la persona.
+
 ## Almacenamiento de archivos
 
 Las imágenes se guardan en disco, en la carpeta `STORAGE_DIR`, con `DiskFileStorage` (`src/infrastructure/storage/`).

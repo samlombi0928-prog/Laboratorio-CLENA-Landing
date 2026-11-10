@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router'
 import { CuadroHistoria } from '../componentes/CuadroHistoria'
 import { VisorPanoramico, type Salida } from '../componentes/VisorPanoramico'
@@ -25,13 +25,24 @@ export function PaginaRecorrido() {
     if (escena) document.title = `${escena.nombre} · Recorrido CLENA`
   }, [escena])
 
+  // Al pasar a otra sala el botón que se usó desaparece; se lleva el foco al título
+  // para que quien navega con teclado o lector de pantalla no vuelva al inicio de la página
+  const titulo = useRef<HTMLHeadingElement>(null)
+  const idSala = escena?.id
+  // Solo cuenta pasar de una sala a otra: ni al entrar ni al redirigir a la primera sala
+  const salaAnterior = useRef(idSala)
+  useEffect(() => {
+    if (idSala && salaAnterior.current && salaAnterior.current !== idSala) titulo.current?.focus()
+    salaAnterior.current = idSala
+  }, [idSala])
+
   if (!escena) {
     return <Navigate to={`/recorrido/clena/${escenasClena[0].id}`} replace />
   }
 
   return (
     <main className="recorrido">
-      <h1 className="recorrido__titulo" aria-live="polite">
+      <h1 ref={titulo} tabIndex={-1} className="recorrido__titulo" aria-live="polite">
         Recorrido CLENA <span aria-hidden="true">·</span> {escena.nombre}
       </h1>
       <VisorPanoramico

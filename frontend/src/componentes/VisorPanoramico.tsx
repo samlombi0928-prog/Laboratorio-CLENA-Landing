@@ -106,11 +106,11 @@ export function VisorPanoramico({ escena, salidas, onNavegar }: Props) {
       }
 
       // Foto parcial: el zoom máximo hacia afuera es la altura que cubre la foto,
-      // para que no se vean bordes negros
+      // para que no se vean bordes negros, y nunca más de 90° para que no se deforme
       const visorCreado = nuevo
       visorCreado.addEventListener('panorama-loaded', () => {
         if (escenaActual.current.tipo === 'parcial') {
-          const maxFov = coberturaVertical.current
+          const maxFov = Math.min(coberturaVertical.current, 90)
           visorCreado.setOptions({ maxFov, minFov: Math.max(10, maxFov / 3) })
         } else {
           visorCreado.setOptions({ minFov: 30, maxFov: 90 })

@@ -32,14 +32,19 @@ Equipo de **Introducción a la Ingeniería de Sistemas** que visitó el CLENA, i
 
 | Funcionalidad | Historias |
 |---|---|
-| Recorrido por los espacios: arrastrar para mirar, pasar de una sala a otra e historia de cada sala | [#7](https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing/issues/7), [#8](https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing/issues/8), [#9](https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing/issues/9), [#11](https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing/issues/11) |
-| Secciones de la landing (espacios, servicios, horarios) administrables desde un panel | [#42](https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing/issues/42), [#43](https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing/issues/43) |
-| Agenda de eventos con publicación por fechas | [#44](https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing/issues/44), [#45](https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing/issues/45) |
-| Galería con carga de imágenes | [#47](https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing/issues/47), [#48](https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing/issues/48) |
-| Inscripción a eventos con consentimiento y confirmación por correo | [#46](https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing/issues/46) |
-| Registro e inicio de sesión con JWT y tres roles: administrador, personal del CLENA y usuario público | [#15](https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing/issues/15), [#24](https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing/issues/24) |
+| Secciones de la landing (espacios, servicios, horarios) administrables desde un panel | [#42](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/42), [#43](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/43) |
+| Agenda de eventos con publicación por fechas | [#44](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/44), [#45](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/45) |
+| Galería con carga de imágenes | [#47](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/47), [#48](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/48) |
+| Inscripción a eventos con consentimiento y confirmación por correo | [#46](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/46) |
+| Registro e inicio de sesión con JWT y tres roles: administrador, personal del CLENA y usuario público | [#15](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/15), [#24](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/24) |
 
-El backlog completo está en los [Issues](https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing/issues?q=label%3A%22historia+de+usuario%22) con la etiqueta **historia de usuario**.
+**Funcionalidad adicional:**
+
+| Funcionalidad | Historias |
+|---|---|
+| Recorrido por los espacios: arrastrar para mirar, pasar de una sala a otra e historia de cada sala | [#7](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/7), [#8](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/8), [#9](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/9), [#11](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/11) |
+
+El backlog completo está en los [Issues](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues?q=label%3A%22historia+de+usuario%22) con la etiqueta **historia de usuario**.
 
 ## Tecnologías
 
@@ -67,7 +72,7 @@ Las carpetas `problema/` y `propuesta/` de la raíz son el material original del
 Requisitos: Docker y docker-compose.
 
 ```bash
-git clone https://github.com/samlombi0928-prog/Laboratorio-CLENA-Landing.git
+git clone https://github.com/sbritoa20/Laboratorio-CLENA-Landing.git
 cd Laboratorio-CLENA-Landing
 cp backend/.env.example backend/.env
 docker compose up

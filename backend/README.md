@@ -41,6 +41,8 @@ Están documentadas en [`.env.example`](.env.example). El archivo `.env` nunca s
 | `JWT_ACCESS_SECRET` | Secreto para firmar los access tokens (mínimo 32 caracteres, distinto en cada entorno) | Obligatorio |
 | `JWT_ACCESS_TTL_SECONDS` | Duración del access token, en segundos | `900` (15 minutos) |
 | `REFRESH_TOKEN_TTL_DAYS` | Duración de la sesión, en días | `7` |
+| `SMTP_HOST`, `SMTP_PORT` | Servidor de correo (SMTP) | `localhost` y `1025` (Mailpit) |
+| `MAIL_FROM` | Remitente de los correos | `CLENA Digital <no-responder@clena.local>` |
 
 Para generar un secreto:
 
@@ -97,6 +99,42 @@ Toda ruta exige un access token válido, salvo las marcadas con `@Public()`. Los
 ```
 
 Sin token, o con uno vencido, la API responde 401; con un rol que no alcanza, 403.
+
+## Inscripciones a eventos
+
+| Método y ruta | Sesión | Qué hace |
+|---|---|---|
+| `POST /api/v1/eventos/:id/inscripciones` | No | Inscribe a una persona. Cuerpo: `nombre`, `correo`, `aceptaPrivacidad`. Envía un correo de confirmación |
+| `GET /api/v1/eventos/:id/inscripciones` | Personal o administrador | Inscritos del evento, en orden de inscripción. Acepta `pagina`, `porPagina` y `buscar` (por nombre o correo) |
+
+Reglas:
+
+- **Sin cuenta:** solo se piden el nombre y el correo, los datos mínimos para confirmar el cupo (Ley 1581). Sin `aceptaPrivacidad: true` responde **422 `CONSENTIMIENTO_REQUERIDO`** y no guarda nada.
+- **Evento publicado:** solo se puede inscribir a un evento que esté en su periodo de publicación y no haya empezado. Si no, responde 404.
+- **Cupo:** cuando se llena, responde **409 `EVENTO_SIN_CUPOS`**. Las inscripciones simultáneas esperan su turno, así que nunca se pasan del cupo.
+- **Un correo por evento:** si el correo ya está inscrito, responde **409 `YA_INSCRITO`**.
+- **Correo de confirmación:** si no se puede enviar, la inscripción igual queda guardada y la respuesta trae `correoEnviado: false`.
+- **Límite de intentos:** 10 inscripciones por minuto por IP.
+
+### Ver los correos en desarrollo
+
+Los correos se envían a [Mailpit](https://mailpit.axllent.org/), que los atrapa y los muestra en una página local en vez de entregarlos:
+
+```bash
+docker run -d --name clena-mailpit -p 1025:1025 -p 8025:8025 axllent/mailpit:v1.27
+```
+
+Los correos se ven en http://localhost:8025.
+
+### Paginación de los listados
+
+Los listados reciben `?pagina=1&porPagina=12` (`porPagina` máximo 50) y responden con la misma forma:
+
+```json
+{ "datos": [], "pagina": 1, "porPagina": 12, "total": 42, "totalPaginas": 4 }
+```
+
+En el código, `normalizePageRequest`, `buildPage` y `Page` están en `src/application/common/pagination.ts`; lo usan también la galería y las secciones.
 
 ## Estructura
 

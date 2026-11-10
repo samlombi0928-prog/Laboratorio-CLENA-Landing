@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-clena}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-clena_dev_local}
+      POSTGRES_DB: ${DB_NAME:-clena}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME:-clena}
+      DB_PASSWORD: ${DB_PASSWORD:-clena_dev_local}
+      DB_NAME: ${DB_NAME:-clena}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
+      # Solo desarrollo. En cualquier otro entorno, definir uno propio en .env
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-solo-desarrollo-local-no-usar-en-produccion-0123456789}
+      JWT_ACCESS_TTL_SECONDS: ${JWT_ACCESS_TTL_SECONDS:-900}
+      REFRESH_TOKEN_TTL_DAYS: ${REFRESH_TOKEN_TTL_DAYS:-7}
+    command: >
+      sh -c "npm run typeorm -- migration:run -d dist/infrastructure/database/data-source.js
+      && node dist/main.js"
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api/v1}
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  pgdata:

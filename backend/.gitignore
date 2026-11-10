@@ -9,6 +9,10 @@ coverage
 .env.*
 !.env.example
 
+# Imágenes subidas en local (STORAGE_DIR). Con "/" inicial para no ignorar
+# las carpetas de código que también se llaman "storage".
+/storage/
+
 # Logs
 logs
 *.log

@@ -10,7 +10,13 @@ export function createLoggerOptions(level: LogLevel): Params {
   return {
     pinoHttp: {
       level,
-      redact: ['req.headers.authorization', 'req.headers.cookie'],
+      // El login y la renovación devuelven el refresh token en Set-Cookie:
+      // con él, quien lea los logs podría robar la sesión.
+      redact: [
+        'req.headers.authorization',
+        'req.headers.cookie',
+        'res.headers["set-cookie"]',
+      ],
       autoLogging: {
         ignore: (req: IncomingMessage) => req.url === '/api/v1/health',
       },

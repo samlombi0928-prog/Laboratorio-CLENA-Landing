@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router'
 import { CuadroHistoria } from '../componentes/CuadroHistoria'
+import { PanelPuntoInteres } from '../componentes/PanelPuntoInteres'
 import { VisorPanoramico, type Salida } from '../componentes/VisorPanoramico'
 import { escenasClena } from '../datos/recorrido-clena'
+import type { PuntoInteres } from '../tipos/escena'
 
 export function PaginaRecorrido() {
   const { escenaId } = useParams()
@@ -10,6 +12,8 @@ export function PaginaRecorrido() {
   const escena = escenasClena.find((e) => e.id === escenaId)
   // Se mantiene al cambiar de sala: si la persona minimizó la historia, sigue minimizada
   const [historiaMinimizada, setHistoriaMinimizada] = useState(false)
+  // Se guarda con su sala: al pasar a otra, el panel del objeto anterior ya no se muestra
+  const [puntoAbierto, setPuntoAbierto] = useState<{ idSala: string; punto: PuntoInteres } | null>(null)
 
   const salidas = useMemo<Salida[]>(
     () =>
@@ -49,12 +53,17 @@ export function PaginaRecorrido() {
         escena={escena}
         salidas={salidas}
         onNavegar={(id) => navigate(`/recorrido/clena/${id}`)}
+        onAbrirPunto={(punto) => setPuntoAbierto({ idSala: escena.id, punto })}
       />
       <CuadroHistoria
         key={escena.id}
         fragmentos={escena.historia}
         minimizado={historiaMinimizada}
         onMinimizar={setHistoriaMinimizada}
+      />
+      <PanelPuntoInteres
+        punto={puntoAbierto?.idSala === escena.id ? puntoAbierto.punto : null}
+        onCerrar={() => setPuntoAbierto(null)}
       />
     </main>
   )

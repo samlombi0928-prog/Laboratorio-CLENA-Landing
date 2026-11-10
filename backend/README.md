@@ -98,6 +98,23 @@ Toda ruta exige un access token válido, salvo las marcadas con `@Public()`. Los
 
 Sin token, o con uno vencido, la API responde 401; con un rol que no alcanza, 403.
 
+En una ruta `@Public()`, si llega un access token válido, `@CurrentUser()` igual trae al usuario; si no llega o no es válido, trae `undefined` y la petición sigue como anónima.
+
+## Recorridos
+
+| Método y ruta | Sesión | Qué hace |
+|---|---|---|
+| `POST /api/v1/recorridos` | Access token | Crea un recorrido en borrador. Campos: `titulo` (obligatorio, máximo 120 caracteres), `descripcion` (opcional, máximo 2000) y `portada` (opcional) |
+| `GET /api/v1/recorridos/mios` | Access token | Recorridos del usuario, incluidos los borradores, del más reciente al más antiguo. Paginado con `pagina` y `porPagina`; responde `{ datos, pagina, porPagina, total, totalPaginas }` |
+| `GET /api/v1/recorridos/:id` | Opcional | Un recorrido publicado lo ve cualquiera; un borrador, solo su creador. Para cualquier otro responde 404, como si no existiera. Si se manda un token vencido o inválido, responde 401 para que el frontend renueve la sesión |
+
+Cómo funciona la portada:
+
+- **Formato:** se envía como `multipart/form-data`, con la imagen en el campo `portada`. Sin portada, el cuerpo también puede ir en JSON.
+- **Validación:** solo JPG o PNG, revisando los primeros bytes del archivo y no la extensión. Máximo 5 MB. Un archivo más grande responde 413; uno que no es imagen, 422.
+- **Almacenamiento:** se guarda con el puerto `FileStorage` (`src/application/storage/ports/`). En la base de datos queda la clave del archivo (`cover_key`) y la respuesta trae la URL en `portadaUrl`.
+- **Provisional:** mientras llega la versión en disco (#18), `StorageModule` usa `UnavailableFileStorage`, que responde **503 `ALMACENAMIENTO_NO_DISPONIBLE`** al subir una portada. Los recorridos sin portada funcionan normalmente.
+
 ## Estructura
 
 ```
@@ -144,4 +161,4 @@ Todas las respuestas de error tienen la misma forma:
 }
 ```
 
-Los errores de dominio se traducen así: `ResourceNotFoundError` → 404, `AccessDeniedError` → 403 y `BusinessRuleError` → 422. Cualquier error inesperado responde 500 sin exponer detalles internos y queda en los logs.
+Los errores de dominio se traducen así: `AuthenticationError` → 401, `AccessDeniedError` → 403, `ResourceNotFoundError` → 404, `ConflictError` → 409 y `BusinessRuleError` → 422. Cualquier error inesperado responde 500 sin exponer detalles internos y queda en los logs.

@@ -123,8 +123,7 @@ Como la API no da el rol de administrador, el primero se crea desde el servidor.
 npm run usuarios:hacer-admin -- correo@ejemplo.com
 ```
 
-Con Docker: `docker compose exec backend npm run usuarios:hacer-admin -- correo@ejemplo.com`.
-
+## Estructura
 
 ```
 src/

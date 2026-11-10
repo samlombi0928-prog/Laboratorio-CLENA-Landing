@@ -1,0 +1,101 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "rules": {
+    "typescript/no-explicit-any": "off",
+    "typescript/no-floating-promises": "error"
+  },
+  "env": {
+    "node": true
+  },
+  "overrides": [
+    {
+      "files": ["src/domain/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@nestjs/*",
+                  "typeorm",
+                  "pg",
+                  "class-validator",
+                  "class-transformer",
+                  "nestjs-pino",
+                  "pino",
+                  "pino-http",
+                  "express"
+                ],
+                "message": "El dominio es TypeScript puro: no puede importar frameworks ni librerías de infraestructura."
+              },
+              {
+                "group": [
+                  "**/application/**",
+                  "**/infrastructure/**",
+                  "**/presentation/**",
+                  "**/modules/**"
+                ],
+                "message": "El dominio no puede depender de capas externas."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/application/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@nestjs/*",
+                  "typeorm",
+                  "pg",
+                  "class-validator",
+                  "class-transformer",
+                  "nestjs-pino",
+                  "pino",
+                  "pino-http",
+                  "express"
+                ],
+                "message": "Los casos de uso no dependen de frameworks: reciben sus dependencias por puertos."
+              },
+              {
+                "group": [
+                  "**/infrastructure/**",
+                  "**/presentation/**",
+                  "**/modules/**"
+                ],
+                "message": "La aplicación solo puede depender del dominio."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/presentation/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["typeorm", "pg"],
+                "message": "La presentación no accede a la base de datos: invoca casos de uso."
+              },
+              {
+                "group": ["**/infrastructure/**", "**/modules/**"],
+                "message": "La presentación solo invoca casos de uso de la capa de aplicación."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

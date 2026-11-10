@@ -2,7 +2,8 @@ import type { Escena } from '../tipos/escena'
 
 // Datos temporales: se reemplazan por la API de recorridos cuando esté lista,
 // y las fotos por las panorámicas 360° de la cámara Kodak.
-// Las conexiones entre salas y la posición de cada punto son provisionales.
+// Las conexiones entre salas, la posición de cada punto y los textos de historia son
+// provisionales: los textos definitivos los entrega el equipo de Introducción.
 export const escenasClena: Escena[] = [
   {
     id: 'pasillo',
@@ -17,6 +18,18 @@ export const escenasClena: Escena[] = [
       { destino: 'archivo', yaw: -20, pitch: -14 },
       { destino: 'biblioteca', yaw: 20, pitch: -14 },
     ],
+    historia: [
+      {
+        titulo: 'Bienvenido al CLENA',
+        texto:
+          'Estás en el complejo de la antigua Aduana de Barranquilla, sede de la Corporación Luis Eduardo Nieto Arteta. Desde este pasillo puedes ir al Museo, al Archivo Histórico y a la Biblioteca.',
+      },
+      {
+        titulo: 'Un edificio con historia',
+        texto:
+          'Por estos pasillos pasaron durante décadas los registros del comercio que entraba y salía de la ciudad. Fíjate en las baldosas del piso y en las molduras del techo.',
+      },
+    ],
   },
   {
     id: 'museo',
@@ -29,6 +42,18 @@ export const escenasClena: Escena[] = [
     conexiones: [
       { destino: 'museo-proyeccion', yaw: -3, pitch: -4 },
       { destino: 'pasillo', yaw: -26, pitch: -14 },
+    ],
+    historia: [
+      {
+        titulo: 'El Museo de la Aduana',
+        texto:
+          'Esta sala presenta la historia de Barranquilla y de su relación con el río y el comercio.',
+      },
+      {
+        titulo: 'Este territorio que somos',
+        texto:
+          'El mapa iluminado muestra los municipios del Atlántico. Cada punto recuerda un lugar con su propia historia.',
+      },
     ],
   },
   {
@@ -43,6 +68,13 @@ export const escenasClena: Escena[] = [
       { destino: 'museo', yaw: -24, pitch: -14 },
       { destino: 'museo-camara-comercio', yaw: 24, pitch: -14 },
     ],
+    historia: [
+      {
+        titulo: 'La sala de proyección',
+        texto:
+          'Aquí se proyectan imágenes del edificio de la Aduana y de la ciudad. El muro de la derecha reúne fotografías históricas.',
+      },
+    ],
   },
   {
     id: 'museo-camara-comercio',
@@ -53,6 +85,13 @@ export const escenasClena: Escena[] = [
     tipo: 'parcial',
     anguloHorizontal: 70,
     conexiones: [{ destino: 'museo-proyeccion', yaw: -24, pitch: -14 }],
+    historia: [
+      {
+        titulo: 'La Cámara de Comercio',
+        texto:
+          'Esta sala recuerda el papel del comercio en el crecimiento de Barranquilla. Lee la cita en la pared de la derecha.',
+      },
+    ],
   },
   {
     id: 'archivo',
@@ -63,6 +102,18 @@ export const escenasClena: Escena[] = [
     tipo: 'parcial',
     anguloHorizontal: 75,
     conexiones: [{ destino: 'pasillo', yaw: -26, pitch: -14 }],
+    historia: [
+      {
+        titulo: 'El Archivo Histórico',
+        texto:
+          'En esta sala se conservan y se consultan documentos sobre la historia de la región.',
+      },
+      {
+        titulo: '¿Cómo se consulta?',
+        texto:
+          'Los investigadores y visitantes hacen su solicitud en el mostrador y revisan el material en las mesas de consulta.',
+      },
+    ],
   },
   {
     id: 'biblioteca',
@@ -73,5 +124,12 @@ export const escenasClena: Escena[] = [
     tipo: 'parcial',
     anguloHorizontal: 75,
     conexiones: [{ destino: 'pasillo', yaw: -26, pitch: -14 }],
+    historia: [
+      {
+        titulo: 'La Biblioteca',
+        texto:
+          'Un espacio de lectura y estudio abierto al público, con colecciones de libros y computadores para consultar.',
+      },
+    ],
   },
 ]

@@ -43,6 +43,8 @@ Están documentadas en [`.env.example`](.env.example). El archivo `.env` nunca s
 | `REFRESH_TOKEN_TTL_DAYS` | Duración de la sesión, en días | `7` |
 | `SMTP_HOST`, `SMTP_PORT` | Servidor de correo (SMTP) | `localhost` y `1025` (Mailpit) |
 | `MAIL_FROM` | Remitente de los correos | `CLENA Digital <no-responder@clena.local>` |
+| `STORAGE_DIR` | Carpeta donde se guardan las imágenes subidas. En Docker debe ser un volumen | `storage` |
+| `PUBLIC_BASE_URL` | Dirección pública de la API, con la que se arman las URL de las imágenes | `http://localhost:3000` |
 
 Para generar un secreto:
 
@@ -100,6 +102,8 @@ Toda ruta exige un access token válido, salvo las marcadas con `@Public()`. Los
 
 Sin token, o con uno vencido, la API responde 401; con un rol que no alcanza, 403.
 
+En una ruta `@Public()`, si llega un access token válido, `@CurrentUser()` igual trae al usuario; si no llega o no es válido, trae `undefined` y la petición sigue como anónima.
+
 ## Inscripciones a eventos
 
 | Método y ruta | Sesión | Qué hace |
@@ -135,6 +139,30 @@ Los listados reciben `?pagina=1&porPagina=12` (`porPagina` máximo 50) y respond
 ```
 
 En el código, `normalizePageRequest`, `buildPage` y `Page` están en `src/application/common/pagination.ts`; lo usan también la galería y las secciones.
+
+## Recorridos
+
+| Método y ruta | Sesión | Qué hace |
+|---|---|---|
+| `POST /api/v1/recorridos` | Access token | Crea un recorrido en borrador. Campos: `titulo` (obligatorio, máximo 120 caracteres), `descripcion` (opcional, máximo 2000) y `portada` (opcional) |
+| `GET /api/v1/recorridos/mios` | Access token | Recorridos del usuario, incluidos los borradores, del más reciente al más antiguo. Paginado con `pagina` y `porPagina`; responde `{ datos, pagina, porPagina, total, totalPaginas }` |
+| `GET /api/v1/recorridos/:id` | Opcional | Un recorrido publicado lo ve cualquiera; un borrador, solo su creador. Para cualquier otro responde 404, como si no existiera. Si se manda un token vencido o inválido, responde 401 para que el frontend renueve la sesión |
+
+Cómo funciona la portada:
+
+- **Formato:** se envía como `multipart/form-data`, con la imagen en el campo `portada`. Sin portada, el cuerpo también puede ir en JSON.
+- **Validación:** solo JPG o PNG, revisando los primeros bytes del archivo y no la extensión. Máximo 5 MB. Un archivo más grande responde 413; uno que no es imagen, 422.
+- **Almacenamiento:** se guarda con el puerto `FileStorage` (`src/application/storage/ports/`). En la base de datos queda la clave del archivo (`cover_key`) y la respuesta trae la URL en `portadaUrl`.
+
+## Almacenamiento de archivos
+
+Las imágenes se guardan en disco, en la carpeta `STORAGE_DIR`, con `DiskFileStorage` (`src/infrastructure/storage/`).
+
+- **Clave:** cada archivo queda como `<carpeta>/<uuid>.<jpg|png>` (por ejemplo `gallery/7d0c2f4e-….jpg`), con la carpeta `covers`, `scenes` o `gallery`. La clave es lo único que se guarda en la base de datos; la URL se calcula al responder.
+- **Escritura segura:** se escribe en un archivo `.tmp` y luego se mueve a su nombre final, así nunca queda visible un archivo a medio escribir.
+- **Seguridad:** solo se acepta una clave con esa forma exacta, así que ninguna clave puede salir de `STORAGE_DIR` (por ejemplo con `../`).
+- **Cómo se ven:** `GET /archivos/<clave>` (fuera de `/api/v1`). La respuesta lleva caché de un año y `X-Content-Type-Options: nosniff`; si el archivo no existe responde 404 con el formato de error de la API.
+- **Despliegue:** `STORAGE_DIR` debe ser un volumen de Docker. Si no, las imágenes se pierden al recrear el contenedor.
 
 ## Estructura
 
@@ -182,4 +210,4 @@ Todas las respuestas de error tienen la misma forma:
 }
 ```
 
-Los errores de dominio se traducen así: `ResourceNotFoundError` → 404, `AccessDeniedError` → 403 y `BusinessRuleError` → 422. Cualquier error inesperado responde 500 sin exponer detalles internos y queda en los logs.
+Los errores de dominio se traducen así: `AuthenticationError` → 401, `AccessDeniedError` → 403, `ResourceNotFoundError` → 404, `ConflictError` → 409 y `BusinessRuleError` → 422. Cualquier error inesperado responde 500 sin exponer detalles internos y queda en los logs.

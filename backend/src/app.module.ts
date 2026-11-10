@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth.module.js';
 import { HealthModule } from './modules/health.module.js';
 import { SectionsModule } from './modules/sections.module.js';
 import { RegistrationsModule } from './modules/registrations.module.js';
+import { ToursModule } from './modules/tours.module.js';
 
 type AppConfig = ConfigService<EnvironmentVariables, true>;
 
@@ -44,6 +45,7 @@ type AppConfig = ConfigService<EnvironmentVariables, true>;
     AuthModule,
     SectionsModule,
     RegistrationsModule,
+    ToursModule,
   ],
 })
 export class AppModule {}

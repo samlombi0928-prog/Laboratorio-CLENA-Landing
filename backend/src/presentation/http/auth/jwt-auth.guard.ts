@@ -15,6 +15,10 @@ import { type AuthenticatedRequest, IS_PUBLIC_KEY } from './auth.decorators.js';
 /**
  * Guard global: toda ruta exige un access token válido en la cabecera
  * Authorization: Bearer <token>, salvo las marcadas con @Public().
+ *
+ * En una ruta pública, si llega un token válido igual se identifica al
+ * usuario (por ejemplo, para que el creador vea su borrador). Si el token no
+ * es válido, la petición sigue como anónima.
  */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -28,13 +32,20 @@ export class JwtAuthGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const [scheme, token] = (request.headers.authorization ?? '').split(' ');
+    const hasToken = scheme === 'Bearer' && Boolean(token);
+
     if (isPublic) {
+      if (hasToken) {
+        request.user = await this.tokens
+          .verifyAccessToken(token)
+          .catch(() => undefined);
+      }
       return true;
     }
 
-    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    const [scheme, token] = (request.headers.authorization ?? '').split(' ');
-    if (scheme !== 'Bearer' || !token) {
+    if (!hasToken) {
       throw new AuthenticationError('Debe iniciar sesión', 'NO_AUTENTICADO');
     }
 

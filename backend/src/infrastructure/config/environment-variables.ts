@@ -5,6 +5,7 @@ import {
   IsInt,
   IsNotEmpty,
   IsString,
+  IsUrl,
   Max,
   Min,
   MinLength,
@@ -101,6 +102,29 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   MAIL_FROM = 'CLENA Digital <no-responder@clena.local>';
+
+  /**
+   * Carpeta donde se guardan las imágenes subidas. En Docker debe ser un
+   * volumen, o las imágenes se pierden al recrear el contenedor.
+   */
+  @IsString()
+  @IsNotEmpty()
+  STORAGE_DIR = 'storage';
+
+  /**
+   * Dirección pública de la API con la que se arman las URL de las imágenes.
+   * Si la API está detrás de un proxy con prefijo, se incluye aquí (por
+   * ejemplo https://clena.co/api).
+   */
+  @IsUrl(
+    {
+      require_tld: false,
+      require_protocol: true,
+      protocols: ['http', 'https'],
+    },
+    { message: 'PUBLIC_BASE_URL debe ser una URL http o https' },
+  )
+  PUBLIC_BASE_URL = 'http://localhost:3000';
 }
 
 /**

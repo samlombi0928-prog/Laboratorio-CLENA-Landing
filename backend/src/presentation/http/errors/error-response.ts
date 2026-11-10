@@ -12,11 +12,16 @@ export class ErrorResponse {
   mensaje: string;
 
   @ApiPropertyOptional({
-    example: [{ campo: 'titulo', errores: ['titulo should not be empty'] }],
+    description:
+      'Solo en errores de validación: un elemento por campo inválido',
+    example: [{ campo: 'correo', errores: ['correo must be an email'] }],
   })
   detalles?: unknown;
 
-  @ApiProperty({ example: '/api/v1/recorridos' })
+  @ApiProperty({
+    description: 'Ruta de la petición que falló',
+    example: '/api/v1/...',
+  })
   ruta: string;
 
   @ApiProperty({ example: '2026-11-04T12:00:00.000Z' })

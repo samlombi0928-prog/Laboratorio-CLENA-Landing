@@ -1,10 +1,11 @@
 .portada {
   position: relative;
+  /* Barra de sesión arriba y contenido abajo: con el texto ampliado no se montan */
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
   min-height: 100vh;
   min-height: 100dvh;
-  padding: 2rem 1rem;
+  padding: 1rem 1rem 2rem;
   overflow: hidden;
   color: #ffffff;
   background-color: #1a1a1a;
@@ -18,12 +19,20 @@
   background: url('/portada/fachada.jpg') center / cover no-repeat;
 }
 
-/* Oscurece la parte de abajo para que el texto se lea bien (el amarillo queda en 7:1) */
+/* Oscurece la foto para que el texto se lea bien: el amarillo queda sobre 6:1 de 375 a
+   1440 px, también con el texto al 200 %, cuando la página crece y el texto queda más arriba.
+   Solo la franja de arriba, donde va la barra de sesión, deja ver más la foto. */
 .portada::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.72) 60%, rgba(0, 0, 0, 0.35) 100%);
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.88) 0%,
+    rgba(0, 0, 0, 0.72) 60%,
+    rgba(0, 0, 0, 0.68) 85%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
 }
 
 .portada__contenido {
@@ -31,7 +40,8 @@
   z-index: 1;
   width: 100%;
   max-width: 40rem;
-  margin: 0 auto 2rem;
+  margin: auto auto 2rem;
+  padding-top: 2rem;
 }
 
 .portada__lugar {

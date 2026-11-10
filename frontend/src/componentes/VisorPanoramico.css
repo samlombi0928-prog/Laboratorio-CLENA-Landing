@@ -36,3 +36,21 @@
 .salida__flecha {
   font-size: 1.125rem;
 }
+
+/* Barra del visor (zoom, mover, pantalla completa): botones de 44 px e íconos
+   blancos sobre fondo oscuro, para que se vean sobre paredes claras */
+.visor .psv-navbar {
+  bottom: -44px;
+  height: 44px;
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.visor .psv-navbar--open {
+  bottom: 0;
+}
+
+.visor .psv-button {
+  height: 24px;
+  width: 24px;
+  color: #ffffff;
+}

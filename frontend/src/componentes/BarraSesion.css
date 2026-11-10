@@ -1,7 +1,5 @@
 .barra-sesion {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
+  position: relative;
   z-index: 2;
   display: flex;
   flex-wrap: wrap;
@@ -27,8 +25,9 @@
 }
 
 .barra-sesion__nombre {
-  padding: 0 0.5rem;
+  padding: 0.5rem 1rem;
   font-weight: 600;
   color: #ffffff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 999px;
 }

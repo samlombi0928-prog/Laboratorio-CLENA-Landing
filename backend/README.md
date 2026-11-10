@@ -66,6 +66,7 @@ node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
 | `npm run migration:generate -- src/infrastructure/database/migrations/<Nombre>` | Genera una migración a partir de las entidades |
 | `npm run migration:run` | Aplica las migraciones pendientes |
 | `npm run migration:revert` | Revierte la última migración |
+| `npm run usuarios:hacer-admin -- <correo>` | Convierte en administrador a un usuario ya registrado |
 
 El esquema de la base de datos solo cambia con migraciones: `synchronize` está desactivado. Después de clonar o de traer cambios, corra `npm run migration:run` antes de `npm run start:dev`.
 
@@ -103,6 +104,30 @@ Toda ruta exige un access token válido, salvo las marcadas con `@Public()`. Los
 Sin token, o con uno vencido, la API responde 401; con un rol que no alcanza, 403.
 
 En una ruta `@Public()`, si llega un access token válido, `@CurrentUser()` igual trae al usuario; si no llega o no es válido, trae `undefined` y la petición sigue como anónima.
+
+## Gestión de roles
+
+Hay tres roles: **administrador** (`admin`), **personal del CLENA** (`staff`) y **usuario público** (`public`). Quien se registra queda como usuario público.
+
+| Método y ruta | Sesión | Qué hace |
+|---|---|---|
+| `GET /api/v1/usuarios` | Administrador | Usuarios por nombre. Acepta `pagina`, `porPagina`, `buscar` (por nombre o correo) y `rol` |
+| `PATCH /api/v1/usuarios/:id/rol` | Administrador | Cuerpo: `rol`, que puede ser `staff` (nombrarlo personal) o `public` (retirarlo) |
+
+Reglas:
+
+- **Solo el administrador** cambia roles. El personal y los usuarios públicos reciben 403.
+- **El rol de administrador no se da ni se quita desde la API:** pedir `admin` responde 400 y tocar a un administrador responde **422 `ROL_DE_ADMINISTRADOR`**.
+- **Cuándo se nota el cambio:** el usuario ve su nuevo rol cuando su sesión se renueva, es decir, al recargar la página o en máximo 15 minutos.
+- **Paginación:** la misma de los demás listados, `?pagina=1&porPagina=12`, con la respuesta `{ datos, pagina, porPagina, total, totalPaginas }` (`src/application/common/pagination.ts`).
+
+### Crear el primer administrador
+
+Como la API no da el rol de administrador, el primero se crea desde el servidor. La persona se registra normalmente y luego se corre:
+
+```bash
+npm run usuarios:hacer-admin -- correo@ejemplo.com
+```
 
 ## Inscripciones a eventos
 

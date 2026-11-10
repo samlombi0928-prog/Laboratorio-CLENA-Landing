@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router'
+import { BarraSesion } from '../componentes/BarraSesion'
 import './PaginaPortada.css'
 
 export function PaginaPortada() {
@@ -9,6 +10,7 @@ export function PaginaPortada() {
 
   return (
     <main className="portada">
+      <BarraSesion />
       <div className="portada__contenido">
         <p className="portada__lugar">Corporación Luis Eduardo Nieto Arteta · Barranquilla</p>
         <h1 className="portada__titulo">Recorre el CLENA</h1>

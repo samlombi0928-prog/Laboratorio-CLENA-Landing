@@ -87,6 +87,22 @@ export class EnvironmentVariables {
   @Max(90)
   REFRESH_TOKEN_TTL_DAYS = 7;
 
+  /** Servidor SMTP. Por defecto, Mailpit en la máquina local. */
+  @IsString()
+  @IsNotEmpty()
+  SMTP_HOST = 'localhost';
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  SMTP_PORT = 1025;
+
+  /** Remitente de los correos que envía la aplicación. */
+  @IsString()
+  @IsNotEmpty()
+  MAIL_FROM = 'CLENA Digital <no-responder@clena.local>';
+
   /**
    * Carpeta donde se guardan las imágenes subidas. En Docker debe ser un
    * volumen, o las imágenes se pierden al recrear el contenedor.

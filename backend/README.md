@@ -41,6 +41,8 @@ Están documentadas en [`.env.example`](.env.example). El archivo `.env` nunca s
 | `JWT_ACCESS_SECRET` | Secreto para firmar los access tokens (mínimo 32 caracteres, distinto en cada entorno) | Obligatorio |
 | `JWT_ACCESS_TTL_SECONDS` | Duración del access token, en segundos | `900` (15 minutos) |
 | `REFRESH_TOKEN_TTL_DAYS` | Duración de la sesión, en días | `7` |
+| `STORAGE_DIR` | Carpeta donde se guardan las imágenes subidas. En Docker debe ser un volumen | `storage` |
+| `PUBLIC_BASE_URL` | Dirección pública de la API, con la que se arman las URL de las imágenes | `http://localhost:3000` |
 
 Para generar un secreto:
 
@@ -113,7 +115,16 @@ Cómo funciona la portada:
 - **Formato:** se envía como `multipart/form-data`, con la imagen en el campo `portada`. Sin portada, el cuerpo también puede ir en JSON.
 - **Validación:** solo JPG o PNG, revisando los primeros bytes del archivo y no la extensión. Máximo 5 MB. Un archivo más grande responde 413; uno que no es imagen, 422.
 - **Almacenamiento:** se guarda con el puerto `FileStorage` (`src/application/storage/ports/`). En la base de datos queda la clave del archivo (`cover_key`) y la respuesta trae la URL en `portadaUrl`.
-- **Provisional:** mientras llega la versión en disco (#18), `StorageModule` usa `UnavailableFileStorage`, que responde **503 `ALMACENAMIENTO_NO_DISPONIBLE`** al subir una portada. Los recorridos sin portada funcionan normalmente.
+
+## Almacenamiento de archivos
+
+Las imágenes se guardan en disco, en la carpeta `STORAGE_DIR`, con `DiskFileStorage` (`src/infrastructure/storage/`).
+
+- **Clave:** cada archivo queda como `<carpeta>/<uuid>.<jpg|png>` (por ejemplo `gallery/7d0c2f4e-….jpg`), con la carpeta `covers`, `scenes` o `gallery`. La clave es lo único que se guarda en la base de datos; la URL se calcula al responder.
+- **Escritura segura:** se escribe en un archivo `.tmp` y luego se mueve a su nombre final, así nunca queda visible un archivo a medio escribir.
+- **Seguridad:** solo se acepta una clave con esa forma exacta, así que ninguna clave puede salir de `STORAGE_DIR` (por ejemplo con `../`).
+- **Cómo se ven:** `GET /archivos/<clave>` (fuera de `/api/v1`). La respuesta lleva caché de un año y `X-Content-Type-Options: nosniff`; si el archivo no existe responde 404 con el formato de error de la API.
+- **Despliegue:** `STORAGE_DIR` debe ser un volumen de Docker. Si no, las imágenes se pierden al recrear el contenedor.
 
 ## Estructura
 

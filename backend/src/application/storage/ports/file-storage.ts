@@ -1,8 +1,11 @@
 /** Tipos de imagen que acepta el sistema. */
 export type ImageContentType = 'image/jpeg' | 'image/png';
 
+/** Carpetas lógicas donde puede quedar un archivo. */
+export const STORAGE_FOLDERS = ['covers', 'scenes', 'gallery'] as const;
+
 /** Carpeta lógica donde queda cada archivo. */
-export type StorageFolder = 'covers' | 'scenes';
+export type StorageFolder = (typeof STORAGE_FOLDERS)[number];
 
 export interface SaveFileInput {
   content: Uint8Array;

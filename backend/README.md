@@ -85,7 +85,7 @@ Cómo funciona la sesión:
 - **Rotación:** cada renovación invalida el refresh token anterior. Si alguien usa uno ya invalidado, se cierran todas las sesiones de ese usuario.
 - **Varias pestañas:** si dos peticiones renuevan con la misma cookie, solo una lo logra. La otra recibe **409 `SESION_YA_RENOVADA`** y la cookie no se borra, porque el navegador ya tiene la nueva: el frontend solo debe volver a llamar a `POST /renovar`. Esto aplica durante 10 segundos después de la renovación; pasado ese tiempo, el token viejo cuenta como robado.
 - **En la base de datos:** las contraseñas se guardan con argon2id y de los refresh tokens solo se guarda su SHA-256.
-- **Límite de intentos:** registro e inicio de sesión aceptan 10 intentos por minuto por IP; después responden 429.
+- **Límite de intentos:** registro e inicio de sesión aceptan 10 intentos por minuto por IP; después responden 429. Detrás de un proxy, como Nginx en Docker, la IP del visitante se toma de la cabecera `X-Forwarded-For` que agrega ese proxy. Por eso en producción el puerto de la API no debe quedar expuesto: solo se entra por el proxy.
 - **Ley 1581:** el registro exige `aceptaPrivacidad: true`. Cada usuario queda con la fecha del consentimiento y la versión del aviso que aceptó (`PRIVACY_NOTICE_VERSION`, hoy provisional).
 
 ### Proteger rutas

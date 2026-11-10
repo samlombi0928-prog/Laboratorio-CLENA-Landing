@@ -145,6 +145,20 @@ Reglas:
 - **Correo de confirmación:** si no se puede enviar, la inscripción igual queda guardada y la respuesta trae `correoEnviado: false`.
 - **Límite de intentos:** 10 inscripciones por minuto por IP.
 
+### Eventos de ejemplo para la demo
+
+`npm run migration:run` carga cinco eventos de ejemplo, con fechas relativas al día en que se corre la migración y en hora de Colombia:
+
+| Evento | Para probar |
+|---|---|
+| Noche de jazz en la Aduana | Una inscripción normal (40 cupos) |
+| Taller de fotografía patrimonial | El evento lleno: tiene 3 cupos |
+| Feria del libro del Caribe | Una inscripción normal (100 cupos) |
+| Visita guiada al Archivo Histórico | Todavía no se publica: responde 404 |
+| Conversatorio sobre la historia del puerto | Ya pasó: responde 404 |
+
+Los identificadores están en `src/infrastructure/database/migrations/1794069800002-SeedEvents.ts`.
+
 ### Ver los correos en desarrollo
 
 Los correos se envían a [Mailpit](https://mailpit.axllent.org/), que los atrapa y los muestra en una página local en vez de entregarlos:

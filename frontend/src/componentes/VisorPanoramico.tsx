@@ -65,12 +65,14 @@ interface Props {
   escena: Escena
   salidas: Salida[]
   onNavegar: (idEscena: string) => void
+  /** Id del párrafo con la descripción de la sala, para que otros elementos lo referencien */
+  idDescripcion: string
 }
 
-export function VisorPanoramico({ escena, salidas, onNavegar }: Props) {
+export function VisorPanoramico({ escena, salidas, onNavegar, idDescripcion }: Props) {
   const contenedor = useRef<HTMLDivElement>(null)
   const [visor, setVisor] = useState<Viewer | null>(null)
-  const idDescripcion = useId()
+  const idInstrucciones = useId()
 
   // Valores que leen los eventos del visor sin tener que volver a crearlo
   const escenaActual = useRef(escena)
@@ -182,11 +184,14 @@ export function VisorPanoramico({ escena, salidas, onNavegar }: Props) {
         className="visor__lienzo"
         role="application"
         aria-roledescription="visor 360°"
-        aria-describedby={idDescripcion}
+        aria-describedby={`${idDescripcion} ${idInstrucciones}`}
       />
       <p id={idDescripcion} className="solo-lectores">
-        {escena.descripcion} Arrastra o usa las flechas del teclado para mirar alrededor, y la
-        tecla Tab para llegar a los botones que llevan a otras salas.
+        {escena.descripcion}
+      </p>
+      <p id={idInstrucciones} className="solo-lectores">
+        Arrastra o usa las flechas del teclado para mirar alrededor, y la tecla Tab para llegar a
+        los botones que llevan a otras salas.
       </p>
     </section>
   )

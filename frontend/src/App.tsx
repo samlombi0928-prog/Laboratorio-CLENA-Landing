@@ -3,6 +3,7 @@ import { PaginaAvisoPrivacidad } from './paginas/PaginaAvisoPrivacidad'
 import { PaginaIngresar } from './paginas/PaginaIngresar'
 import { PaginaPanel } from './paginas/PaginaPanel'
 import { PaginaPanelSecciones } from './paginas/PaginaPanelSecciones'
+import { PaginaPanelUsuarios } from './paginas/PaginaPanelUsuarios'
 import { PaginaPortada } from './paginas/PaginaPortada'
 import { PaginaRecorrido } from './paginas/PaginaRecorrido'
 import { PaginaRegistro } from './paginas/PaginaRegistro'
@@ -30,6 +31,14 @@ function App() {
         element={
           <RutaProtegida roles={ROLES_PANEL}>
             <PaginaPanelSecciones />
+          </RutaProtegida>
+        }
+      />
+      <Route
+        path="/panel/usuarios"
+        element={
+          <RutaProtegida roles={['admin']}>
+            <PaginaPanelUsuarios />
           </RutaProtegida>
         }
       />

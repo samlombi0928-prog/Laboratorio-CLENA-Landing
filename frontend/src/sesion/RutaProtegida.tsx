@@ -31,7 +31,11 @@ export function RutaProtegida({ roles, children }: Props) {
     return (
       <main className="pagina-estado">
         <h1>No tienes permiso para ver esta página</h1>
-        <p>Esta sección es solo para el personal del CLENA.</p>
+        <p>
+          {roles.includes('staff')
+            ? 'Esta sección es solo para el personal del CLENA.'
+            : 'Esta sección es solo para administradores.'}
+        </p>
         <Link to="/">Volver al inicio</Link>
       </main>
     )

@@ -129,6 +129,32 @@ Como la API no da el rol de administrador, el primero se crea desde el servidor.
 npm run usuarios:hacer-admin -- correo@ejemplo.com
 ```
 
+## Agenda de eventos
+
+| Método y ruta | Sesión | Qué hace |
+|---|---|---|
+| `GET /api/v1/eventos` | No | Agenda pública: los eventos publicados, del más próximo al más lejano. Acepta `pagina`, `porPagina` y `buscar` (por título o lugar) |
+| `GET /api/v1/eventos/gestion` | Personal o administrador | Todos los eventos, con su `estado`. Acepta además `estado` |
+| `POST /api/v1/eventos` | Personal o administrador | Programa un evento. Cuerpo: `titulo`, `descripcion` (opcional), `lugar`, `inicio`, `cupo`, `publicarDesde`, `publicarHasta` |
+| `PATCH /api/v1/eventos/:id` | Personal o administrador | Cambia solo los campos que se envían |
+| `DELETE /api/v1/eventos/:id` | Personal o administrador | Elimina el evento y sus inscripciones |
+
+Reglas:
+
+- **Publicación por fechas:** cada evento tiene un estado que se calcula con la hora actual, sin que nadie lo publique a mano:
+
+  | `estado` | Cuándo | ¿Sale en la agenda? |
+  |---|---|---|
+  | `pendiente` | Antes de `publicarDesde` | No |
+  | `publicado` | Desde `publicarDesde` hasta `publicarHasta`, mientras no haya empezado | Sí, y recibe inscripciones |
+  | `cerrado` | Después de `publicarHasta`, o cuando el evento empieza | No |
+
+- **Fechas con zona horaria:** `inicio`, `publicarDesde` y `publicarHasta` van en ISO 8601 con zona, por ejemplo `2026-11-21T19:00:00-05:00`. Sin la zona responde 400, porque "19:00" sería la hora del servidor y no la de Colombia. La API devuelve las fechas en UTC.
+- **Periodo válido:** si `publicarHasta` es anterior a `publicarDesde`, responde **422 `PERIODO_DE_PUBLICACION_NO_VALIDO`**, también al editar solo una de las dos.
+- **Eliminar:** también borra las inscripciones del evento. El panel debe pedir confirmación.
+
+Con los eventos de ejemplo, la agenda pública muestra el taller, el jazz y la feria; en el panel, la visita sale `pendiente` y el conversatorio `cerrado`.
+
 ## Inscripciones a eventos
 
 | Método y ruta | Sesión | Qué hace |
@@ -177,7 +203,7 @@ Los listados reciben `?pagina=1&porPagina=12` (`porPagina` máximo 50) y respond
 { "datos": [], "pagina": 1, "porPagina": 12, "total": 42, "totalPaginas": 4 }
 ```
 
-En el código, `normalizePageRequest`, `buildPage` y `Page` están en `src/application/common/pagination.ts`; lo usan también la galería y las secciones.
+En el código, `normalizePageRequest`, `buildPage` y `Page` están en `src/application/common/pagination.ts`; lo usan también la galería, las secciones y la agenda.
 
 ## Recorridos
 

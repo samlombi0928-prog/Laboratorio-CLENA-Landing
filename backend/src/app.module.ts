@@ -9,6 +9,7 @@ import {
 import { createTypeOrmOptions } from './infrastructure/database/typeorm-options.js';
 import { createLoggerOptions } from './infrastructure/logging/logger-options.js';
 import { AuthModule } from './modules/auth.module.js';
+import { EventsModule } from './modules/events.module.js';
 import { GalleryModule } from './modules/gallery.module.js';
 import { HealthModule } from './modules/health.module.js';
 import { SectionsModule } from './modules/sections.module.js';
@@ -46,6 +47,7 @@ type AppConfig = ConfigService<EnvironmentVariables, true>;
     HealthModule,
     AuthModule,
     SectionsModule,
+    EventsModule,
     RegistrationsModule,
     UsersModule,
     ToursModule,

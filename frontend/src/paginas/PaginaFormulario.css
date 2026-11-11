@@ -38,6 +38,9 @@
 }
 
 .pagina-formulario__volver {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   font-size: 0.9375rem;
 }
 
@@ -114,7 +117,10 @@
 
 .campo--casilla .campo__error,
 .campo__enlace {
+  display: flex;
+  align-items: center;
   flex-basis: 100%;
+  min-height: 44px;
 }
 
 .boton-principal,
@@ -185,7 +191,7 @@
   gap: 1rem;
 }
 
-.panel__acciones a {
+.panel a {
   color: inherit;
 }
 

@@ -67,4 +67,51 @@ describe('User', () => {
   it('normalizeEmail quita espacios y pasa a minúsculas', () => {
     expect(normalizeEmail(' X@Y.Co ')).toBe('x@y.co');
   });
+
+  describe('changeRole', () => {
+    function withRole(role: Role): User {
+      const user = User.register(validInput);
+      return User.restore({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        passwordHash: user.passwordHash,
+        role,
+        privacyConsentAt: user.privacyConsentAt,
+        privacyNoticeVersion: user.privacyNoticeVersion,
+        createdAt: user.createdAt,
+      });
+    }
+
+    it('nombra personal a un usuario público y lo puede retirar', () => {
+      const user = User.register(validInput);
+
+      user.changeRole(Role.Staff);
+      expect(user.role).toBe(Role.Staff);
+
+      user.changeRole(Role.Public);
+      expect(user.role).toBe(Role.Public);
+    });
+
+    it('no da el rol de administrador', () => {
+      const user = User.register(validInput);
+
+      expect(() => user.changeRole(Role.Admin)).toThrow(
+        expect.objectContaining({
+          constructor: BusinessRuleError,
+          code: 'ROL_NO_ASIGNABLE',
+        }),
+      );
+      expect(user.role).toBe(Role.Public);
+    });
+
+    it('no le cambia el rol a un administrador', () => {
+      const admin = withRole(Role.Admin);
+
+      expect(() => admin.changeRole(Role.Public)).toThrow(
+        expect.objectContaining({ code: 'ROL_DE_ADMINISTRADOR' }),
+      );
+      expect(admin.role).toBe(Role.Admin);
+    });
+  });
 });

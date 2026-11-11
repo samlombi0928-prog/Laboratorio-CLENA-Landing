@@ -1,0 +1,81 @@
+.secciones-landing {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 3rem 1rem 4rem;
+}
+
+.secciones-landing__estado {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  color: var(--color-texto-suave);
+}
+
+.secciones-landing__bloque + .secciones-landing__bloque {
+  margin-top: 3rem;
+}
+
+.secciones-landing h2 {
+  margin: 0 0 1.25rem;
+  font-size: 1.75rem;
+}
+
+.secciones-landing__tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.secciones-landing__tarjeta {
+  padding: 1.25rem;
+  background-color: var(--color-superficie);
+  border-radius: 0.75rem;
+}
+
+.secciones-landing__tarjeta h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+}
+
+.secciones-landing__tarjeta p {
+  margin: 0;
+  color: var(--color-texto-suave);
+}
+
+.secciones-landing__enlace {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  margin-top: 1.25rem;
+  font-weight: 700;
+  color: inherit;
+}
+
+.secciones-landing__horarios {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 32rem;
+  margin: 0;
+}
+
+.secciones-landing__horarios div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-superficie);
+  border-radius: 0.5rem;
+}
+
+.secciones-landing__horarios dt {
+  font-weight: 700;
+}
+
+.secciones-landing__horarios dd {
+  margin: 0;
+}

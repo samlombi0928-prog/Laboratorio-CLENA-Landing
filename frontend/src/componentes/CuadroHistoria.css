@@ -1,9 +1,9 @@
-/* Queda sobre la barra de controles del visor (40 px de alto) */
+/* Queda sobre la barra de controles del visor (44 px de alto) */
 .cuadro-historia,
 .cuadro-historia__abrir {
   position: absolute;
   left: 1rem;
-  bottom: calc(40px + 1rem);
+  bottom: calc(44px + 1rem);
   z-index: 100;
   color: #ffffff;
   background-color: rgba(0, 0, 0, 0.8);
@@ -92,7 +92,7 @@
   .cuadro-historia {
     left: 0.5rem;
     right: 0.5rem;
-    bottom: calc(40px + 0.5rem);
+    bottom: calc(44px + 0.5rem);
     width: auto;
     max-height: 45vh;
     overflow-y: auto;
@@ -100,7 +100,7 @@
 
   .cuadro-historia__abrir {
     left: 0.5rem;
-    bottom: calc(40px + 0.5rem);
+    bottom: calc(44px + 0.5rem);
   }
 }
 

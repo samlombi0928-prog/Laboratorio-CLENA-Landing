@@ -59,7 +59,7 @@ export function PaginaRegistro() {
           <span aria-hidden="true">←</span> Volver al inicio
         </Link>
         <h1>Crear cuenta</h1>
-        <p>Con una cuenta puedes inscribirte a los eventos del CLENA.</p>
+        <p>Con una cuenta puedes crear y compartir tus propios recorridos. Para inscribirte a un evento no la necesitas.</p>
 
         {error && (
           <div ref={resumenError} className="pagina-formulario__alerta" role="alert" tabIndex={-1}>

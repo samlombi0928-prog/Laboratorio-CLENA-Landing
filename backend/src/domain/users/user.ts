@@ -68,6 +68,27 @@ export class User {
     return new User({ ...props });
   }
 
+  /**
+   * El administrador nombra o retira al personal del CLENA. El rol de
+   * administrador no se da ni se quita desde la aplicación, así nadie puede
+   * quedarse con todo el control ni dejar el sistema sin administrador.
+   */
+  changeRole(role: Role): void {
+    if (this.props.role === Role.Admin) {
+      throw new BusinessRuleError(
+        'No se puede cambiar el rol de un administrador',
+        'ROL_DE_ADMINISTRADOR',
+      );
+    }
+    if (role === Role.Admin) {
+      throw new BusinessRuleError(
+        'El rol de administrador no se asigna desde la aplicación',
+        'ROL_NO_ASIGNABLE',
+      );
+    }
+    this.props.role = role;
+  }
+
   get id(): string {
     return this.props.id;
   }

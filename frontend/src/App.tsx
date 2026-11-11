@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router'
 import { PaginaAvisoPrivacidad } from './paginas/PaginaAvisoPrivacidad'
 import { PaginaIngresar } from './paginas/PaginaIngresar'
 import { PaginaPanel } from './paginas/PaginaPanel'
+import { PaginaPanelSecciones } from './paginas/PaginaPanelSecciones'
 import { PaginaPortada } from './paginas/PaginaPortada'
 import { PaginaRecorrido } from './paginas/PaginaRecorrido'
 import { PaginaRegistro } from './paginas/PaginaRegistro'
@@ -21,6 +22,14 @@ function App() {
         element={
           <RutaProtegida roles={ROLES_PANEL}>
             <PaginaPanel />
+          </RutaProtegida>
+        }
+      />
+      <Route
+        path="/panel/secciones"
+        element={
+          <RutaProtegida roles={ROLES_PANEL}>
+            <PaginaPanelSecciones />
           </RutaProtegida>
         }
       />

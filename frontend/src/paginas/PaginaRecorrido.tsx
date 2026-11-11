@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router'
 import { CuadroHistoria } from '../componentes/CuadroHistoria'
 import { PanelPuntoInteres } from '../componentes/PanelPuntoInteres'
@@ -32,6 +32,8 @@ export function PaginaRecorrido() {
   // Al pasar a otra sala el botón que se usó desaparece; se lleva el foco al título
   // para que quien navega con teclado o lector de pantalla no vuelva al inicio de la página
   const titulo = useRef<HTMLHeadingElement>(null)
+  // El título lleva la descripción de la sala: al recibir el foco, el lector dice qué se ve
+  const idDescripcion = useId()
   const idSala = escena?.id
   // Solo cuenta pasar de una sala a otra: ni al entrar ni al redirigir a la primera sala
   const salaAnterior = useRef(idSala)
@@ -46,7 +48,13 @@ export function PaginaRecorrido() {
 
   return (
     <main className="recorrido">
-      <h1 ref={titulo} tabIndex={-1} className="recorrido__titulo" aria-live="polite">
+      <h1
+        ref={titulo}
+        tabIndex={-1}
+        className="recorrido__titulo"
+        aria-live="polite"
+        aria-describedby={idDescripcion}
+      >
         Recorrido CLENA <span aria-hidden="true">·</span> {escena.nombre}
       </h1>
       <VisorPanoramico
@@ -54,6 +62,7 @@ export function PaginaRecorrido() {
         salidas={salidas}
         onNavegar={(id) => navigate(`/recorrido/clena/${id}`)}
         onAbrirPunto={(punto) => setPuntoAbierto({ idSala: escena.id, punto })}
+        idDescripcion={idDescripcion}
       />
       <CuadroHistoria
         key={escena.id}

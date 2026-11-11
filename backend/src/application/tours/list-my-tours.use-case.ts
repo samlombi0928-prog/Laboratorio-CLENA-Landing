@@ -1,3 +1,9 @@
+import {
+  buildPage,
+  normalizePageRequest,
+  type Page,
+  type PageRequest,
+} from '../common/pagination.js';
 import type { FileStorage } from '../storage/ports/file-storage.js';
 import type { TourRepository } from './ports/tour-repository.js';
 import { toTourView, type TourView } from './tour-view.js';
@@ -9,8 +15,16 @@ export class ListMyToursUseCase {
     private readonly storage: FileStorage,
   ) {}
 
-  async execute(ownerId: string): Promise<TourView[]> {
-    const tours = await this.tours.findByOwner(ownerId);
-    return tours.map((tour) => toTourView(tour, this.storage));
+  async execute(
+    ownerId: string,
+    input: Partial<PageRequest> = {},
+  ): Promise<Page<TourView>> {
+    const request = normalizePageRequest(input);
+    const { items, total } = await this.tours.findByOwner(ownerId, request);
+    return buildPage(
+      items.map((tour) => toTourView(tour, this.storage)),
+      request,
+      total,
+    );
   }
 }

@@ -68,6 +68,21 @@ describe('Validación y errores (e2e)', () => {
     expect(fields).toEqual(expect.arrayContaining(['name', 'extra']));
   });
 
+  it('responde 400 en español cuando el cuerpo no es un JSON válido', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/api/v1/examples')
+      .set('Content-Type', 'application/json')
+      .send('{"name": "Aduana"')
+      .expect(400);
+
+    expect(res.body).toMatchObject({
+      estado: 400,
+      codigo: 'JSON_INVALIDO',
+      mensaje: 'El cuerpo de la petición no es un JSON válido',
+      ruta: '/api/v1/examples',
+    });
+  });
+
   it('responde 404 con el formato uniforme en rutas que no existen', async () => {
     const res = await request(app.getHttpServer())
       .get('/api/v1/no-existe')

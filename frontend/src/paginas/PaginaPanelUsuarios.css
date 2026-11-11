@@ -1,0 +1,30 @@
+.panel-usuarios__busqueda {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  max-width: 40rem;
+  margin-bottom: 1rem;
+}
+
+/* min-width: 0 deja que el campo se encoja en celular con el texto ampliado */
+.panel-usuarios__busqueda .campo {
+  flex: 1 1 16rem;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.panel-usuarios__correo {
+  overflow-wrap: anywhere;
+}
+
+.panel-usuarios__nota {
+  margin: 0;
+  max-width: 14rem;
+  font-size: 0.9375rem;
+  color: var(--color-texto-suave);
+}
+
+.rol {
+  font-weight: 700;
+}

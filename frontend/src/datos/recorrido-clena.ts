@@ -1,36 +1,356 @@
-import type { Escena } from '../tipos/escena'
+import type { Conexion, Escena, FragmentoHistoria, PuntoInteres } from '../tipos/escena'
 
-// Datos temporales: se reemplazan por la API de recorridos cuando esté lista,
-// y las fotos por las panorámicas 360° de la cámara Kodak.
+// Datos temporales: se reemplazan por la API de recorridos cuando esté lista.
+// Las fotos de la cámara Kodak (gran angular) están enderezadas al formato del visor
+// y cubren unos 100° de ancho; las del museo son fotos normales.
 // Las conexiones entre salas, la posición de cada punto y los textos de historia son
 // provisionales: los textos definitivos los entrega el equipo de Introducción.
-export const escenasClena: Escena[] = [
-  {
-    id: 'pasillo',
-    nombre: 'Pasillo de la Aduana',
-    imagen: '/escenas/pasillo.jpg',
-    descripcion:
-      'Pasillo largo con piso de baldosas decoradas, techo con molduras y lámparas, y ventanas con rejas a ambos lados.',
+
+/** Escena tomada con la cámara Kodak y enderezada: cubre unos 100° de ancho. */
+function kodak(
+  id: string,
+  nombre: string,
+  descripcion: string,
+  conexiones: Conexion[],
+  historia: FragmentoHistoria[],
+  anguloHorizontal = 100,
+): Escena {
+  return {
+    id,
+    nombre,
+    imagen: `/escenas/${id}.jpg`,
+    descripcion,
     tipo: 'parcial',
-    anguloHorizontal: 65,
-    conexiones: [
-      { destino: 'museo', yaw: 0, pitch: -4 },
-      { destino: 'archivo', yaw: -20, pitch: -14 },
-      { destino: 'biblioteca', yaw: 20, pitch: -14 },
+    anguloHorizontal,
+    conexiones,
+    historia,
+  }
+}
+
+// Objetos destacados por sala. Los textos son provisionales, como los de la historia:
+// solo describen lo que se ve en la foto hasta que el equipo de Introducción entregue los suyos.
+const puntosInteres: Record<string, PuntoInteres[]> = {
+  corredor: [
+    {
+      id: 'cartelera',
+      titulo: 'Cartelera cultural',
+      texto:
+        'Aquí se anuncian las exposiciones, los talleres y los eventos del mes en el CLENA.',
+      yaw: -34,
+      pitch: 6,
+    },
+  ],
+  'biblioteca-meira': [
+    {
+      id: 'letrero-meira',
+      titulo: 'Sala de lectura Meira del Mar',
+      texto:
+        'La sala lleva el nombre de Meira del Mar, poeta barranquillera. Adentro hay mesas para leer y estudiar en silencio.',
+      yaw: -32,
+      pitch: 17,
+    },
+  ],
+  'exposiciones-frente': [
+    {
+      id: 'mural-heins',
+      titulo: 'Rosario Heins: La permanencia del talento',
+      texto:
+        'Es el título de la exposición. Debajo está su obra principal: un mural con escenas de playa, rodeado de cuadros de la misma serie.',
+      yaw: 0,
+      pitch: -6,
+    },
+  ],
+}
+
+const escenasSinPuntos: Escena[] = [
+  // Afuera
+  kodak(
+    'corredor',
+    'Corredor de la Aduana',
+    'Corredor exterior con paredes amarillas, piso de ladrillo, una cartelera con la oferta cultural y una puerta de madera al fondo. A la derecha hay un jardín con palmas.',
+    [
+      { destino: 'entrada', yaw: 0, pitch: 8 },
+      { destino: 'jardin', yaw: 35, pitch: -5 },
     ],
-    historia: [
+    [
       {
         titulo: 'Bienvenido al CLENA',
         texto:
-          'Estás en el complejo de la antigua Aduana de Barranquilla, sede de la Corporación Luis Eduardo Nieto Arteta. Desde este pasillo puedes ir al Museo, al Archivo Histórico y a la Biblioteca.',
+          'Estás en el complejo de la antigua Aduana de Barranquilla, sede de la Corporación Luis Eduardo Nieto Arteta. Entra por la puerta del fondo para recorrer sus espacios.',
       },
       {
-        titulo: 'Un edificio con historia',
+        titulo: 'La oferta cultural',
         texto:
-          'Por estos pasillos pasaron durante décadas los registros del comercio que entraba y salía de la ciudad. Fíjate en las baldosas del piso y en las molduras del techo.',
+          'En la cartelera de la izquierda se publican las actividades del mes: exposiciones, talleres y eventos abiertos al público.',
       },
     ],
-  },
+  ),
+  kodak(
+    'jardin',
+    'Jardín',
+    'Jardín con piedras blancas, plantas y un letrero informativo frente a una pared amarilla.',
+    [{ destino: 'corredor', yaw: -35, pitch: -10 }],
+    [
+      {
+        titulo: 'Los jardines',
+        texto: 'Las zonas verdes rodean los edificios del complejo y acompañan los corredores exteriores.',
+      },
+    ],
+  ),
+  kodak(
+    'entrada',
+    'Entrada principal',
+    'Fachada amarilla con una puerta verde abierta al centro, ventanas de madera a los lados y matas en la entrada.',
+    [
+      { destino: 'biblioteca-entrada', yaw: -30, pitch: 5 },
+      { destino: 'exposiciones-sala', yaw: 30, pitch: 5 },
+      { destino: 'museo', yaw: 0, pitch: -6 },
+      { destino: 'archivo', yaw: -30, pitch: -15 },
+      { destino: 'cafe-entrada', yaw: 30, pitch: -15 },
+      { destino: 'corredor', yaw: 0, pitch: -36 },
+    ],
+    [
+      {
+        titulo: 'La entrada',
+        texto:
+          'Desde aquí puedes ir a la Biblioteca, la Sala de exposiciones, el Museo, el Archivo Histórico y el Café.',
+      },
+    ],
+  ),
+
+  // Biblioteca
+  kodak(
+    'biblioteca-entrada',
+    'Biblioteca',
+    'Pasillo central de la biblioteca con piso de baldosas decoradas, techo con molduras doradas y salas con rejas de madera a ambos lados.',
+    [
+      { destino: 'biblioteca-meira', yaw: 0, pitch: -2 },
+      { destino: 'biblioteca-coleccion', yaw: 35, pitch: -8 },
+      { destino: 'biblioteca-baranda', yaw: -35, pitch: -18 },
+    ],
+    [
+      {
+        titulo: 'La Biblioteca',
+        texto:
+          'Un pasillo central reúne las salas de la biblioteca. A la derecha está la Colección general y al fondo, la Sala de lectura Meira del Mar.',
+      },
+    ],
+  ),
+  kodak(
+    'biblioteca-baranda',
+    'Biblioteca: escalera de entrada',
+    'Vista desde la baranda blanca sobre la escalera de entrada, con columnas y salas de la biblioteca alrededor.',
+    [
+      { destino: 'biblioteca-entrada', yaw: -35, pitch: -25 },
+      { destino: 'entrada', yaw: 0, pitch: -12 },
+    ],
+    [
+      {
+        titulo: 'La escalera',
+        texto: 'Por esta escalera se sube a la biblioteca. Los carteles indican la entrada y la salida.',
+      },
+    ],
+  ),
+  kodak(
+    'biblioteca-coleccion',
+    'Biblioteca: Colección general',
+    'Sala con estanterías de libros, columnas blancas y una mesa de consulta con vitrinas.',
+    [{ destino: 'biblioteca-entrada', yaw: 40, pitch: -15 }],
+    [
+      {
+        titulo: 'La Colección general',
+        texto: 'Estanterías con libros de consulta y mesas para leer, abiertas al público.',
+      },
+    ],
+  ),
+  kodak(
+    'biblioteca-meira',
+    'Biblioteca: Sala de lectura Meira del Mar',
+    'Pasillo de la biblioteca frente a la Sala de lectura Meira del Mar, con puertas de madera y techo decorado.',
+    [
+      { destino: 'infantil-entrada', yaw: 0, pitch: -2 },
+      { destino: 'biblioteca-sala', yaw: -30, pitch: -8 },
+      { destino: 'biblioteca-entrada', yaw: 0, pitch: -35 },
+    ],
+    [
+      {
+        titulo: 'Sala de lectura Meira del Mar',
+        texto: 'A la izquierda está la sala de lectura, con mesas para leer y estudiar en silencio.',
+      },
+    ],
+  ),
+  kodak(
+    'biblioteca-sala',
+    'Biblioteca: sala de lectura',
+    'Sala amplia con columnas blancas, mesas, sillas y estanterías de libros, con ventanales al fondo.',
+    [
+      { destino: 'biblioteca-estanterias', yaw: 25, pitch: -5 },
+      { destino: 'biblioteca-meira', yaw: -40, pitch: -15 },
+    ],
+    [
+      {
+        titulo: 'Un lugar para leer',
+        texto: 'Las mesas de esta sala están abiertas a cualquier visitante que quiera leer o estudiar.',
+      },
+    ],
+  ),
+  kodak(
+    'biblioteca-estanterias',
+    'Biblioteca: estanterías',
+    'Pasillo estrecho entre dos estanterías altas llenas de libros.',
+    [{ destino: 'biblioteca-sala', yaw: 0, pitch: -35 }],
+    [
+      {
+        titulo: 'Entre los libros',
+        texto: 'Los libros están organizados por temas en estas estanterías.',
+      },
+    ],
+  ),
+
+  // Sala infantil
+  kodak(
+    'infantil-entrada',
+    'Sala infantil: entrada',
+    'Puerta de madera al final del pasillo de la biblioteca que da a una sala con un mural azul.',
+    [
+      { destino: 'infantil', yaw: 0, pitch: -5 },
+      { destino: 'biblioteca-meira', yaw: 0, pitch: -38 },
+    ],
+    [
+      {
+        titulo: 'La sala infantil',
+        texto: 'Al final del pasillo está la sala para niñas y niños, con su propio mural.',
+      },
+    ],
+  ),
+  kodak(
+    'infantil',
+    'Sala infantil',
+    'Sala con un gran mural azul de niños, mariposas y la luna, filas de sillas blancas y mesas rojas.',
+    [
+      { destino: 'infantil-mesas', yaw: 35, pitch: -10 },
+      { destino: 'infantil-entrada', yaw: -40, pitch: -20 },
+    ],
+    [
+      {
+        titulo: 'El mural',
+        texto: 'El mural llena de color la sala donde se leen cuentos y se hacen actividades para niños.',
+      },
+    ],
+  ),
+  kodak(
+    'infantil-mesas',
+    'Sala infantil: mesas',
+    'Mesas rojas con computadores y sillas verdes junto al mural azul.',
+    [{ destino: 'infantil', yaw: -35, pitch: -15 }],
+    [
+      {
+        titulo: 'Para estudiar y jugar',
+        texto: 'Las mesas tienen computadores para las niñas y los niños que visitan la sala.',
+      },
+    ],
+  ),
+
+  // Sala de exposiciones
+  kodak(
+    'exposiciones-sala',
+    'Sala de exposiciones',
+    'Sala amplia de paredes blancas con cuadros colgados, techo con vigas y lámparas, y piso de baldosas en damero.',
+    [
+      { destino: 'exposiciones-frente', yaw: 40, pitch: -5 },
+      { destino: 'exposiciones-entrada', yaw: -42, pitch: -10 },
+    ],
+    [
+      {
+        titulo: 'La Sala de exposiciones',
+        texto: 'Una sala amplia para exposiciones de arte que cambian durante el año.',
+      },
+      {
+        titulo: 'Rosario Heins: La permanencia del talento',
+        texto:
+          'Cuando se tomó esta foto se exhibía esta muestra, que celebra los 50 años de creación plástica de la artista.',
+      },
+    ],
+  ),
+  kodak(
+    'exposiciones-frente',
+    'Sala de exposiciones: obra principal',
+    'Pared del fondo de la sala con el título de la exposición de Rosario Heins y un mural de escenas de playa, con cuadros a los lados.',
+    [{ destino: 'exposiciones-sala', yaw: 0, pitch: -35 }],
+    [
+      {
+        titulo: 'Escenas de playa',
+        texto:
+          'Las obras de esta muestra retratan días de playa en el Caribe colombiano, dibujados con lápices de colores.',
+      },
+    ],
+  ),
+  kodak(
+    'exposiciones-entrada',
+    'Sala de exposiciones: entrada',
+    'Pared con el texto de presentación de la exposición, cuadros pequeños a la izquierda y una puerta de madera abierta a la derecha.',
+    [
+      { destino: 'entrada', yaw: 30, pitch: -8 },
+      { destino: 'exposiciones-sala', yaw: -40, pitch: -15 },
+    ],
+    [
+      {
+        titulo: 'La presentación de la muestra',
+        texto:
+          'Cada exposición tiene a la entrada un texto que cuenta quién es el artista y qué vas a ver. Por la puerta de la derecha se sale de la sala.',
+      },
+    ],
+    132,
+  ),
+
+  // Archivo y café
+  kodak(
+    'archivo',
+    'Archivo Histórico',
+    'Sala de trabajo del Archivo Histórico con un mostrador de atención, columnas, estantes con cajas de documentos y piso de baldosas en damero.',
+    [{ destino: 'entrada', yaw: -35, pitch: -30 }],
+    [
+      {
+        titulo: 'El Archivo Histórico',
+        texto: 'En esta sala se conservan y se consultan documentos sobre la historia de la región.',
+      },
+      {
+        titulo: '¿Cómo se consulta?',
+        texto:
+          'Los investigadores y visitantes hacen su solicitud en el mostrador y revisan el material en las mesas de consulta.',
+      },
+    ],
+  ),
+  kodak(
+    'cafe-entrada',
+    'Café de la Aduana: entrada',
+    'Entrada al Café de la Aduana, con mesas al fondo y dos placas conmemorativas en la pared de la izquierda.',
+    [
+      { destino: 'cafe', yaw: 0, pitch: -10 },
+      { destino: 'entrada', yaw: 0, pitch: -38 },
+    ],
+    [
+      {
+        titulo: 'El Café de la Aduana',
+        texto:
+          'Un espacio para tomar algo durante la visita. En la pared de la izquierda hay placas conmemorativas del edificio.',
+      },
+    ],
+  ),
+  kodak(
+    'cafe',
+    'Café de la Aduana',
+    'Café con mesas blancas, sillas de madera, una lámpara colgante con varios bombillos y una barra junto a la pared.',
+    [{ destino: 'cafe-entrada', yaw: -20, pitch: 5 }],
+    [
+      {
+        titulo: 'Un descanso',
+        texto: 'Mesas para sentarse a conversar o descansar antes de seguir el recorrido.',
+      },
+    ],
+  ),
+
+  // Museo (fotos anteriores: no se pudieron tomar nuevas por un evento)
   {
     id: 'museo',
     nombre: 'Museo de la Aduana',
@@ -41,7 +361,7 @@ export const escenasClena: Escena[] = [
     anguloHorizontal: 75,
     conexiones: [
       { destino: 'museo-proyeccion', yaw: -3, pitch: -4 },
-      { destino: 'pasillo', yaw: -26, pitch: -14 },
+      { destino: 'entrada', yaw: -26, pitch: -14 },
     ],
     historia: [
       {
@@ -93,43 +413,9 @@ export const escenasClena: Escena[] = [
       },
     ],
   },
-  {
-    id: 'archivo',
-    nombre: 'Archivo Histórico',
-    imagen: '/escenas/archivo.jpg',
-    descripcion:
-      'Sala del Archivo Histórico con columnas blancas, un mostrador de atención, estantes con documentos y mesas de consulta.',
-    tipo: 'parcial',
-    anguloHorizontal: 75,
-    conexiones: [{ destino: 'pasillo', yaw: -26, pitch: -14 }],
-    historia: [
-      {
-        titulo: 'El Archivo Histórico',
-        texto:
-          'En esta sala se conservan y se consultan documentos sobre la historia de la región.',
-      },
-      {
-        titulo: '¿Cómo se consulta?',
-        texto:
-          'Los investigadores y visitantes hacen su solicitud en el mostrador y revisan el material en las mesas de consulta.',
-      },
-    ],
-  },
-  {
-    id: 'biblioteca',
-    nombre: 'Biblioteca',
-    imagen: '/escenas/biblioteca.jpg',
-    descripcion:
-      'Biblioteca con estanterías de libros, mesas de lectura con computadores y techos altos con ventanales de madera.',
-    tipo: 'parcial',
-    anguloHorizontal: 75,
-    conexiones: [{ destino: 'pasillo', yaw: -26, pitch: -14 }],
-    historia: [
-      {
-        titulo: 'La Biblioteca',
-        texto:
-          'Un espacio de lectura y estudio abierto al público, con colecciones de libros y computadores para consultar.',
-      },
-    ],
-  },
 ]
+
+export const escenasClena: Escena[] = escenasSinPuntos.map((escena) => ({
+  ...escena,
+  puntosInteres: puntosInteres[escena.id] ?? [],
+}))

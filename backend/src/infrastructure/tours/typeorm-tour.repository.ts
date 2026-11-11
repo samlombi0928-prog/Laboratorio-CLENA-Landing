@@ -1,5 +1,9 @@
 import type { Repository } from 'typeorm';
-import type { TourRepository } from '../../application/tours/ports/tour-repository.js';
+import type { PageRequest } from '../../application/common/pagination.js';
+import type {
+  TourPageResult,
+  TourRepository,
+} from '../../application/tours/ports/tour-repository.js';
 import type { Tour } from '../../domain/tours/tour.js';
 import { TourMapper } from './tour.mapper.js';
 import type { TourOrmEntity } from './tour.orm-entity.js';
@@ -12,12 +16,18 @@ export class TypeOrmTourRepository implements TourRepository {
     return row ? TourMapper.toDomain(row) : null;
   }
 
-  async findByOwner(ownerId: string): Promise<Tour[]> {
-    const rows = await this.repository.find({
+  async findByOwner(
+    ownerId: string,
+    page: PageRequest,
+  ): Promise<TourPageResult> {
+    const [rows, total] = await this.repository.findAndCount({
       where: { ownerId },
-      order: { createdAt: 'DESC' },
+      // El id desempata, para que nada se repita ni se salte entre páginas.
+      order: { createdAt: 'DESC', id: 'ASC' },
+      skip: (page.page - 1) * page.pageSize,
+      take: page.pageSize,
     });
-    return rows.map((row) => TourMapper.toDomain(row));
+    return { items: rows.map((row) => TourMapper.toDomain(row)), total };
   }
 
   async save(tour: Tour): Promise<void> {

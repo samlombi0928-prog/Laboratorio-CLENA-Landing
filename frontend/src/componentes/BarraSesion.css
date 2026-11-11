@@ -1,0 +1,33 @@
+.barra-sesion {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.barra-sesion a,
+.barra-sesion button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  color: #ffffff;
+  text-decoration: none;
+  background-color: rgba(0, 0, 0, 0.55);
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.barra-sesion__nombre {
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 999px;
+}

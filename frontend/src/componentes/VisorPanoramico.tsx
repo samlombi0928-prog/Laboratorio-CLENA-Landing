@@ -4,7 +4,7 @@ import { MarkersPlugin } from '@photo-sphere-viewer/markers-plugin'
 import { VisibleRangePlugin } from '@photo-sphere-viewer/visible-range-plugin'
 import '@photo-sphere-viewer/core/index.css'
 import '@photo-sphere-viewer/markers-plugin/index.css'
-import type { Escena } from '../tipos/escena'
+import type { Escena, PuntoInteres } from '../tipos/escena'
 import './VisorPanoramico.css'
 
 const TEXTOS: Record<string, string> = {
@@ -59,26 +59,42 @@ function crearBotonSalida(salida: Salida, alElegir: (id: string) => void): HTMLB
   return boton
 }
 
+function crearBotonPunto(punto: PuntoInteres, alElegir: (punto: PuntoInteres) => void): HTMLButtonElement {
+  const boton = document.createElement('button')
+  boton.type = 'button'
+  boton.className = 'punto-interes'
+  boton.setAttribute('aria-haspopup', 'dialog')
+  boton.innerHTML = '<span class="punto-interes__icono" aria-hidden="true">i</span>'
+  boton.append(punto.titulo)
+  boton.addEventListener('click', () => alElegir(punto))
+  return boton
+}
+
 const prefiereMenosMovimiento = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 interface Props {
   escena: Escena
   salidas: Salida[]
   onNavegar: (idEscena: string) => void
+  onAbrirPunto: (punto: PuntoInteres) => void
+  /** Id del párrafo con la descripción de la sala, para que otros elementos lo referencien */
+  idDescripcion: string
 }
 
-export function VisorPanoramico({ escena, salidas, onNavegar }: Props) {
+export function VisorPanoramico({ escena, salidas, onNavegar, onAbrirPunto, idDescripcion }: Props) {
   const contenedor = useRef<HTMLDivElement>(null)
   const [visor, setVisor] = useState<Viewer | null>(null)
-  const idDescripcion = useId()
+  const idInstrucciones = useId()
 
   // Valores que leen los eventos del visor sin tener que volver a crearlo
   const escenaActual = useRef(escena)
   const coberturaVertical = useRef(90)
   const navegar = useRef(onNavegar)
+  const abrirPunto = useRef(onAbrirPunto)
   useEffect(() => {
     escenaActual.current = escena
     navegar.current = onNavegar
+    abrirPunto.current = onAbrirPunto
   })
 
   // El visor se crea una sola vez; al cambiar de sala solo se cambia la imagen
@@ -106,11 +122,11 @@ export function VisorPanoramico({ escena, salidas, onNavegar }: Props) {
       }
 
       // Foto parcial: el zoom máximo hacia afuera es la altura que cubre la foto,
-      // para que no se vean bordes negros
+      // para que no se vean bordes negros, y nunca más de 90° para que no se deforme
       const visorCreado = nuevo
       visorCreado.addEventListener('panorama-loaded', () => {
         if (escenaActual.current.tipo === 'parcial') {
-          const maxFov = coberturaVertical.current
+          const maxFov = Math.min(coberturaVertical.current, 90)
           visorCreado.setOptions({ maxFov, minFov: Math.max(10, maxFov / 3) })
         } else {
           visorCreado.setOptions({ minFov: 30, maxFov: 90 })
@@ -162,13 +178,18 @@ export function VisorPanoramico({ escena, salidas, onNavegar }: Props) {
       })
       .then((completo) => {
         if (!completo) return
-        marcadores.setMarkers(
-          salidas.map((salida) => ({
+        marcadores.setMarkers([
+          ...salidas.map((salida) => ({
             id: `salida-${salida.idDestino}`,
             element: crearBotonSalida(salida, (id) => navegar.current(id)),
             position: { yaw: `${salida.yaw}deg`, pitch: `${salida.pitch}deg` },
           })),
-        )
+          ...(escena.puntosInteres ?? []).map((punto) => ({
+            id: `punto-${punto.id}`,
+            element: crearBotonPunto(punto, (elegido) => abrirPunto.current(elegido)),
+            position: { yaw: `${punto.yaw}deg`, pitch: `${punto.pitch}deg` },
+          })),
+        ])
       })
       .catch(() => {
         // El visor ya muestra el mensaje de error de carga
@@ -182,11 +203,14 @@ export function VisorPanoramico({ escena, salidas, onNavegar }: Props) {
         className="visor__lienzo"
         role="application"
         aria-roledescription="visor 360°"
-        aria-describedby={idDescripcion}
+        aria-describedby={`${idDescripcion} ${idInstrucciones}`}
       />
       <p id={idDescripcion} className="solo-lectores">
-        {escena.descripcion} Arrastra o usa las flechas del teclado para mirar alrededor, y la
-        tecla Tab para llegar a los botones que llevan a otras salas.
+        {escena.descripcion}
+      </p>
+      <p id={idInstrucciones} className="solo-lectores">
+        Arrastra o usa las flechas del teclado para mirar alrededor, y la tecla Tab para llegar a
+        los botones que llevan a otras salas o muestran información de un objeto.
       </p>
     </section>
   )

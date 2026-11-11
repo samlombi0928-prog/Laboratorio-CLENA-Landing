@@ -246,10 +246,28 @@ describe('Recorridos (e2e)', () => {
         .set('Authorization', `Bearer ${anaToken}`)
         .expect(200);
 
-      expect(res.body.map((t: { titulo: string }) => t.titulo)).toEqual([
+      expect(res.body.datos.map((t: { titulo: string }) => t.titulo)).toEqual([
         'Con portada',
         'Primer recorrido',
       ]);
+      expect(res.body).toMatchObject({
+        pagina: 1,
+        porPagina: 12,
+        total: 2,
+        totalPaginas: 1,
+      });
+    });
+
+    it('pagina con pagina y porPagina', async () => {
+      const res = await http
+        .get('/api/v1/recorridos/mios?pagina=2&porPagina=1')
+        .set('Authorization', `Bearer ${anaToken}`)
+        .expect(200);
+
+      expect(res.body.datos.map((t: { titulo: string }) => t.titulo)).toEqual([
+        'Primer recorrido',
+      ]);
+      expect(res.body.totalPaginas).toBe(2);
     });
 
     it('sin sesión responde 401', async () => {
@@ -264,7 +282,7 @@ describe('Recorridos (e2e)', () => {
       const mine = await http
         .get('/api/v1/recorridos/mios')
         .set('Authorization', `Bearer ${anaToken}`);
-      draftId = mine.body[0].id as string;
+      draftId = mine.body.datos[0].id as string;
     });
 
     it('el creador ve su borrador', async () => {
@@ -276,18 +294,23 @@ describe('Recorridos (e2e)', () => {
       expect(res.body).toMatchObject({ id: draftId, titulo: 'Con portada' });
     });
 
-    it('otro usuario, alguien sin sesión o con un token inválido reciben 404', async () => {
+    it('otro usuario o alguien sin sesión reciben 404', async () => {
       await http
         .get(`/api/v1/recorridos/${draftId}`)
         .set('Authorization', `Bearer ${beaToken}`)
         .expect(404);
-      await http.get(`/api/v1/recorridos/${draftId}`).expect(404);
+      const res = await http.get(`/api/v1/recorridos/${draftId}`).expect(404);
+
+      expect(res.body.codigo).toBe('RECURSO_NO_ENCONTRADO');
+    });
+
+    it('con un token vencido o inválido responde 401, para que el cliente renueve la sesión', async () => {
       const res = await http
         .get(`/api/v1/recorridos/${draftId}`)
         .set('Authorization', 'Bearer no-es-un-token')
-        .expect(404);
+        .expect(401);
 
-      expect(res.body.codigo).toBe('RECURSO_NO_ENCONTRADO');
+      expect(res.body.codigo).toBe('TOKEN_INVALIDO');
     });
 
     it('un id que no existe o que no es un UUID responde 404', async () => {

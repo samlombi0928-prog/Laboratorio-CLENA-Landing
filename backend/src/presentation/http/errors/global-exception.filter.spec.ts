@@ -107,6 +107,19 @@ describe('GlobalExceptionFilter', () => {
     );
   });
 
+  it('no confunde un 400 cualquiera con un JSON mal formado', () => {
+    const { host, json } = createHost();
+
+    filter.catch(new BadRequestException('Formato no soportado'), host);
+
+    expect(json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        codigo: 'SOLICITUD_INVALIDA',
+        mensaje: 'Formato no soportado',
+      }),
+    );
+  });
+
   it('traduce al español el error de archivo demasiado grande', () => {
     const { host, json } = createHost();
 

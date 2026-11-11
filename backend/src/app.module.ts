@@ -11,6 +11,9 @@ import { createLoggerOptions } from './infrastructure/logging/logger-options.js'
 import { AuthModule } from './modules/auth.module.js';
 import { GalleryModule } from './modules/gallery.module.js';
 import { HealthModule } from './modules/health.module.js';
+import { SectionsModule } from './modules/sections.module.js';
+import { RegistrationsModule } from './modules/registrations.module.js';
+import { UsersModule } from './modules/users.module.js';
 import { ToursModule } from './modules/tours.module.js';
 
 type AppConfig = ConfigService<EnvironmentVariables, true>;
@@ -42,6 +45,9 @@ type AppConfig = ConfigService<EnvironmentVariables, true>;
     }),
     HealthModule,
     AuthModule,
+    SectionsModule,
+    RegistrationsModule,
+    UsersModule,
     ToursModule,
     GalleryModule,
   ],

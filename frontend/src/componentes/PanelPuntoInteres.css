@@ -1,0 +1,41 @@
+.panel-punto {
+  width: min(28rem, calc(100% - 2rem));
+  max-height: calc(100% - 2rem);
+  padding: 0;
+  color: #ffffff;
+  background-color: #1a1a1a;
+  border: 2px solid var(--color-acento);
+  border-radius: 0.75rem;
+}
+
+.panel-punto::backdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.panel-punto__contenido {
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.panel-punto__titulo {
+  margin: 0 0 0.75rem;
+  font-size: 1.25rem;
+  color: var(--color-acento);
+}
+
+.panel-punto__texto {
+  margin: 0 0 1.25rem;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.panel-punto__cerrar {
+  min-height: 44px;
+  padding: 0 1.25rem;
+  font: inherit;
+  font-weight: 600;
+  color: #ffffff;
+  background: transparent;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  cursor: pointer;
+}

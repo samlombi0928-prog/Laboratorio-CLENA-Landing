@@ -1,5 +1,9 @@
 import { QueryFailedError, type Repository } from 'typeorm';
-import type { UserRepository } from '../../application/users/ports/user-repository.js';
+import type {
+  UserPageResult,
+  UserQuery,
+  UserRepository,
+} from '../../application/users/ports/user-repository.js';
 import { ConflictError } from '../../domain/errors/domain-errors.js';
 import type { User } from '../../domain/users/user.js';
 import { UserMapper } from './user.mapper.js';
@@ -20,6 +24,27 @@ export class TypeOrmUserRepository implements UserRepository {
     return row ? UserMapper.toDomain(row) : null;
   }
 
+  async findPage(query: UserQuery): Promise<UserPageResult> {
+    const builder = this.repository.createQueryBuilder('user');
+    if (query.role) {
+      builder.andWhere('user.role = :role', { role: query.role });
+    }
+    if (query.search) {
+      builder.andWhere(
+        '(user.name ILIKE :search OR user.email ILIKE :search)',
+        { search: `%${escapeLike(query.search)}%` },
+      );
+    }
+    const [rows, total] = await builder
+      .orderBy('user.name', 'ASC')
+      // El id desempata, para que nada se repita ni se salte entre páginas.
+      .addOrderBy('user.id', 'ASC')
+      .offset((query.page - 1) * query.pageSize)
+      .limit(query.pageSize)
+      .getManyAndCount();
+    return { items: rows.map((row) => UserMapper.toDomain(row)), total };
+  }
+
   async save(user: User): Promise<void> {
     try {
       await this.repository.save(UserMapper.toPersistence(user));
@@ -37,4 +62,9 @@ export class TypeOrmUserRepository implements UserRepository {
       throw error;
     }
   }
+}
+
+/** Escapa los comodines de LIKE para que "%" o "_" se busquen como texto. */
+function escapeLike(text: string): string {
+  return text.replace(/[\\%_]/g, (char) => `\\${char}`);
 }

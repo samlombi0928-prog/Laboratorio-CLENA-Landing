@@ -135,8 +135,30 @@ describe('ListMyToursUseCase', () => {
 
     const mine = await listMine.execute('u-1');
 
-    expect(mine.map((tour) => tour.title)).toEqual(['Segundo', 'Primero']);
-    expect(await listMine.execute('u-3')).toEqual([]);
+    expect(mine.items.map((tour) => tour.title)).toEqual([
+      'Segundo',
+      'Primero',
+    ]);
+    expect(mine.total).toBe(2);
+    expect((await listMine.execute('u-3')).items).toEqual([]);
+  });
+
+  it('pagina los recorridos', async () => {
+    const { create, listMine, advance } = setup();
+    for (const title of ['Uno', 'Dos', 'Tres']) {
+      await create.execute({ ownerId: 'u-1', title });
+      advance(1000);
+    }
+
+    const second = await listMine.execute('u-1', { page: 2, pageSize: 2 });
+
+    expect(second).toMatchObject({
+      page: 2,
+      pageSize: 2,
+      total: 3,
+      totalPages: 2,
+    });
+    expect(second.items.map((tour) => tour.title)).toEqual(['Uno']);
   });
 });
 

@@ -41,6 +41,8 @@ Están documentadas en [`.env.example`](.env.example). El archivo `.env` nunca s
 | `JWT_ACCESS_SECRET` | Secreto para firmar los access tokens (mínimo 32 caracteres, distinto en cada entorno) | Obligatorio |
 | `JWT_ACCESS_TTL_SECONDS` | Duración del access token, en segundos | `900` (15 minutos) |
 | `REFRESH_TOKEN_TTL_DAYS` | Duración de la sesión, en días | `7` |
+| `SMTP_HOST`, `SMTP_PORT` | Servidor de correo (SMTP) | `localhost` y `1025` (Mailpit) |
+| `MAIL_FROM` | Remitente de los correos | `CLENA Digital <no-responder@clena.local>` |
 | `STORAGE_DIR` | Carpeta donde se guardan las imágenes subidas. En Docker debe ser un volumen | `storage` |
 | `PUBLIC_BASE_URL` | Dirección pública de la API, con la que se arman las URL de las imágenes | `http://localhost:3000` |
 
@@ -64,6 +66,7 @@ node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
 | `npm run migration:generate -- src/infrastructure/database/migrations/<Nombre>` | Genera una migración a partir de las entidades |
 | `npm run migration:run` | Aplica las migraciones pendientes |
 | `npm run migration:revert` | Revierte la última migración |
+| `npm run usuarios:hacer-admin -- <correo>` | Convierte en administrador a un usuario ya registrado |
 
 El esquema de la base de datos solo cambia con migraciones: `synchronize` está desactivado. Después de clonar o de traer cambios, corra `npm run migration:run` antes de `npm run start:dev`.
 
@@ -85,7 +88,7 @@ Cómo funciona la sesión:
 - **Rotación:** cada renovación invalida el refresh token anterior. Si alguien usa uno ya invalidado, se cierran todas las sesiones de ese usuario.
 - **Varias pestañas:** si dos peticiones renuevan con la misma cookie, solo una lo logra. La otra recibe **409 `SESION_YA_RENOVADA`** y la cookie no se borra, porque el navegador ya tiene la nueva: el frontend solo debe volver a llamar a `POST /renovar`. Esto aplica durante 10 segundos después de la renovación; pasado ese tiempo, el token viejo cuenta como robado.
 - **En la base de datos:** las contraseñas se guardan con argon2id y de los refresh tokens solo se guarda su SHA-256.
-- **Límite de intentos:** registro e inicio de sesión aceptan 10 intentos por minuto por IP; después responden 429.
+- **Límite de intentos:** registro e inicio de sesión aceptan 10 intentos por minuto por IP; después responden 429. Detrás de un proxy, como Nginx en Docker, la IP del visitante se toma de la cabecera `X-Forwarded-For` que agrega ese proxy. Por eso en producción el puerto de la API no debe quedar expuesto: solo se entra por el proxy.
 - **Ley 1581:** el registro exige `aceptaPrivacidad: true`. Cada usuario queda con la fecha del consentimiento y la versión del aviso que aceptó (`PRIVACY_NOTICE_VERSION`, hoy provisional).
 
 ### Proteger rutas
@@ -102,13 +105,87 @@ Sin token, o con uno vencido, la API responde 401; con un rol que no alcanza, 40
 
 En una ruta `@Public()`, si llega un access token válido, `@CurrentUser()` igual trae al usuario; si no llega o no es válido, trae `undefined` y la petición sigue como anónima.
 
+## Gestión de roles
+
+Hay tres roles: **administrador** (`admin`), **personal del CLENA** (`staff`) y **usuario público** (`public`). Quien se registra queda como usuario público.
+
+| Método y ruta | Sesión | Qué hace |
+|---|---|---|
+| `GET /api/v1/usuarios` | Administrador | Usuarios por nombre. Acepta `pagina`, `porPagina`, `buscar` (por nombre o correo) y `rol` |
+| `PATCH /api/v1/usuarios/:id/rol` | Administrador | Cuerpo: `rol`, que puede ser `staff` (nombrarlo personal) o `public` (retirarlo) |
+
+Reglas:
+
+- **Solo el administrador** cambia roles. El personal y los usuarios públicos reciben 403.
+- **El rol de administrador no se da ni se quita desde la API:** pedir `admin` responde 400 y tocar a un administrador responde **422 `ROL_DE_ADMINISTRADOR`**.
+- **Cuándo se nota el cambio:** el usuario ve su nuevo rol cuando su sesión se renueva, es decir, al recargar la página o en máximo 15 minutos.
+- **Paginación:** la misma de los demás listados, `?pagina=1&porPagina=12`, con la respuesta `{ datos, pagina, porPagina, total, totalPaginas }` (`src/application/common/pagination.ts`).
+
+### Crear el primer administrador
+
+Como la API no da el rol de administrador, el primero se crea desde el servidor. La persona se registra normalmente y luego se corre:
+
+```bash
+npm run usuarios:hacer-admin -- correo@ejemplo.com
+```
+
+## Inscripciones a eventos
+
+| Método y ruta | Sesión | Qué hace |
+|---|---|---|
+| `POST /api/v1/eventos/:id/inscripciones` | No | Inscribe a una persona. Cuerpo: `nombre`, `correo`, `aceptaPrivacidad`. Envía un correo de confirmación |
+| `GET /api/v1/eventos/:id/inscripciones` | Personal o administrador | Inscritos del evento, en orden de inscripción. Acepta `pagina`, `porPagina` y `buscar` (por nombre o correo) |
+
+Reglas:
+
+- **Sin cuenta:** solo se piden el nombre y el correo, los datos mínimos para confirmar el cupo (Ley 1581). Sin `aceptaPrivacidad: true` responde **422 `CONSENTIMIENTO_REQUERIDO`** y no guarda nada.
+- **Evento publicado:** solo se puede inscribir a un evento que esté en su periodo de publicación y no haya empezado. Si no, responde 404.
+- **Cupo:** cuando se llena, responde **409 `EVENTO_SIN_CUPOS`**. Las inscripciones simultáneas esperan su turno, así que nunca se pasan del cupo.
+- **Un correo por evento:** si el correo ya está inscrito, responde **409 `YA_INSCRITO`**.
+- **Correo de confirmación:** si no se puede enviar, la inscripción igual queda guardada y la respuesta trae `correoEnviado: false`.
+- **Límite de intentos:** 10 inscripciones por minuto por IP.
+
+### Eventos de ejemplo para la demo
+
+`npm run migration:run` carga cinco eventos de ejemplo, con fechas relativas al día en que se corre la migración y en hora de Colombia:
+
+| Evento | Para probar |
+|---|---|
+| Noche de jazz en la Aduana | Una inscripción normal (40 cupos) |
+| Taller de fotografía patrimonial | El evento lleno: tiene 3 cupos |
+| Feria del libro del Caribe | Una inscripción normal (100 cupos) |
+| Visita guiada al Archivo Histórico | Todavía no se publica: responde 404 |
+| Conversatorio sobre la historia del puerto | Ya pasó: responde 404 |
+
+Los identificadores están en `src/infrastructure/database/migrations/1794069800002-SeedEvents.ts`.
+
+### Ver los correos en desarrollo
+
+Los correos se envían a [Mailpit](https://mailpit.axllent.org/), que los atrapa y los muestra en una página local en vez de entregarlos:
+
+```bash
+docker run -d --name clena-mailpit -p 1025:1025 -p 8025:8025 axllent/mailpit:v1.27
+```
+
+Los correos se ven en http://localhost:8025.
+
+### Paginación de los listados
+
+Los listados reciben `?pagina=1&porPagina=12` (`porPagina` máximo 50) y responden con la misma forma:
+
+```json
+{ "datos": [], "pagina": 1, "porPagina": 12, "total": 42, "totalPaginas": 4 }
+```
+
+En el código, `normalizePageRequest`, `buildPage` y `Page` están en `src/application/common/pagination.ts`; lo usan también la galería y las secciones.
+
 ## Recorridos
 
 | Método y ruta | Sesión | Qué hace |
 |---|---|---|
 | `POST /api/v1/recorridos` | Access token | Crea un recorrido en borrador. Campos: `titulo` (obligatorio, máximo 120 caracteres), `descripcion` (opcional, máximo 2000) y `portada` (opcional) |
-| `GET /api/v1/recorridos/mios` | Access token | Recorridos del usuario, incluidos los borradores, del más reciente al más antiguo |
-| `GET /api/v1/recorridos/:id` | Opcional | Un recorrido publicado lo ve cualquiera; un borrador, solo su creador. Para cualquier otro responde 404, como si no existiera |
+| `GET /api/v1/recorridos/mios` | Access token | Recorridos del usuario, incluidos los borradores, del más reciente al más antiguo. Paginado con `pagina` y `porPagina`; responde `{ datos, pagina, porPagina, total, totalPaginas }` |
+| `GET /api/v1/recorridos/:id` | Opcional | Un recorrido publicado lo ve cualquiera; un borrador, solo su creador. Para cualquier otro responde 404, como si no existiera. Si se manda un token vencido o inválido, responde 401 para que el frontend renueve la sesión |
 
 Cómo funciona la portada:
 

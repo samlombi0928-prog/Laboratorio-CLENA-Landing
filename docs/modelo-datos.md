@@ -105,7 +105,9 @@ erDiagram
     }
 ```
 
-`section_items` no se relaciona con ninguna tabla: es contenido de la landing que edita el personal. `event_registrations` tampoco apunta a `users`: la persona se identifica por su correo (ver la sección 4).
+*Figura 1. Diagrama entidad-relación de las siete tablas de la base de datos del CLENA.*
+
+En la Figura 1, `section_items` no se relaciona con ninguna tabla: es contenido de la landing que edita el personal. `event_registrations` tampoco apunta a `users`: la persona se identifica por su correo (ver la sección 4).
 
 Cómo leer las líneas entre tablas:
 

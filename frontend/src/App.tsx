@@ -1,7 +1,9 @@
 import { Navigate, Route, Routes } from 'react-router'
 import { PaginaAvisoPrivacidad } from './paginas/PaginaAvisoPrivacidad'
 import { PaginaIngresar } from './paginas/PaginaIngresar'
+import { PaginaInscripcion } from './paginas/PaginaInscripcion'
 import { PaginaPanel } from './paginas/PaginaPanel'
+import { PaginaPanelInscritos } from './paginas/PaginaPanelInscritos'
 import { PaginaPanelSecciones } from './paginas/PaginaPanelSecciones'
 import { PaginaPanelUsuarios } from './paginas/PaginaPanelUsuarios'
 import { PaginaPortada } from './paginas/PaginaPortada'
@@ -18,6 +20,7 @@ function App() {
       <Route path="/ingresar" element={<PaginaIngresar />} />
       <Route path="/registro" element={<PaginaRegistro />} />
       <Route path="/aviso-de-privacidad" element={<PaginaAvisoPrivacidad />} />
+      <Route path="/eventos/:idEvento/inscripcion" element={<PaginaInscripcion />} />
       <Route
         path="/panel"
         element={
@@ -39,6 +42,14 @@ function App() {
         element={
           <RutaProtegida roles={['admin']}>
             <PaginaPanelUsuarios />
+          </RutaProtegida>
+        }
+      />
+      <Route
+        path="/panel/eventos/:idEvento/inscritos"
+        element={
+          <RutaProtegida roles={ROLES_PANEL}>
+            <PaginaPanelInscritos />
           </RutaProtegida>
         }
       />

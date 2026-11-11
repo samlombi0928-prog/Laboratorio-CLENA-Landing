@@ -79,6 +79,14 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
 
     if (exception instanceof HttpException) {
+      if (isMalformedJsonBody(exception)) {
+        return {
+          estado: HttpStatus.BAD_REQUEST,
+          codigo: 'JSON_INVALIDO',
+          mensaje: 'El cuerpo de la petición no es un JSON válido',
+        };
+      }
+
       const status = exception.getStatus();
       const content = exception.getResponse();
       const defaultCode = HTTP_ERROR_CODES[status] ?? `HTTP_${status}`;
@@ -122,6 +130,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       mensaje: 'Ocurrió un error inesperado',
     };
   }
+}
+
+/**
+ * Nest convierte el error del parser de JSON en un 400 con el mensaje en inglés
+ * de JSON.parse, sin otra marca para reconocerlo; todos esos mensajes nombran JSON.
+ */
+function isMalformedJsonBody(exception: HttpException): boolean {
+  return (
+    exception.getStatus() === HttpStatus.BAD_REQUEST &&
+    /\bJSON\b/.test(exception.message)
+  );
 }
 
 function statusForDomainError(error: DomainError): number {

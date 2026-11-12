@@ -139,6 +139,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
-  exports: [TOKEN_SERVICE],
+  // La eliminación de cuentas (AccountModule) verifica la contraseña y borra la
+  // cookie de la sesión.
+  exports: [TOKEN_SERVICE, PASSWORD_HASHER, REFRESH_COOKIE_SETTINGS],
 })
 export class AuthModule {}

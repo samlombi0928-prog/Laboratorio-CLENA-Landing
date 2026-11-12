@@ -130,6 +130,34 @@ Como la API no da el rol de administrador, el primero se crea desde el servidor.
 npm run usuarios:hacer-admin -- correo@ejemplo.com
 ```
 
+## Eliminar mi cuenta
+
+Derecho de supresión de la Ley 1581 de 2012 (HU-10).
+
+| Método y ruta | Sesión | Qué hace |
+|---|---|---|
+| `DELETE /api/v1/cuenta` | Cualquier usuario con sesión | Elimina su propia cuenta y sus datos. Cuerpo: `contrasena`. Responde 204 y borra la cookie de la sesión |
+
+Qué se borra y qué no:
+
+| Dato | Qué pasa |
+|---|---|
+| La cuenta (nombre, correo, hash de la contraseña, consentimiento) | Se elimina |
+| Sus sesiones abiertas | Se eliminan (`ON DELETE CASCADE`): la sesión no se puede renovar |
+| Sus recorridos | Se eliminan (`ON DELETE CASCADE`), y sus **portadas se borran del almacenamiento** |
+| Sus inscripciones a eventos | Se eliminan **por correo**: `event_registrations` no está ligada a la cuenta, así que se borran las inscripciones hechas con el mismo correo |
+| Las imágenes de la galería que subió | **Se conservan**, con `uploaded_by` vacío (`ON DELETE SET NULL`): son contenido del CLENA, no de la persona |
+
+Reglas:
+
+- **Pide la contraseña otra vez** (`contrasena`), porque no se puede deshacer y así un access token robado no alcanza. Si no es correcta responde **422 `CONTRASENA_INCORRECTA`**; no usa 401 para que el frontend no lo confunda con un access token vencido y vuelva a intentarlo.
+- **La única cuenta de administrador no se puede eliminar:** responde **422 `ULTIMO_ADMINISTRADOR`**. Primero hay que nombrar a otro administrador con `usuarios:hacer-admin`.
+- **Todo o nada:** las inscripciones y la cuenta (con sus recorridos y sesiones) se borran en **una sola transacción**. Después se borran los archivos; si alguno falla, la cuenta ya no existe y queda un aviso en los logs con las claves que sobraron (son rutas con un uuid, sin datos personales).
+- **Límite de intentos:** 10 por minuto y por IP, igual que el inicio de sesión, porque la ruta comprueba una contraseña.
+- **Limitación conocida:** el access token dura hasta 15 minutos y no se revoca. Con ese token una cuenta ya eliminada recibe 404 en `/auth/perfil`, y si intenta crear un recorrido recibe un 500 (la llave foránea no existe), sin dejar datos ni archivos. Después de ese tiempo, 401.
+
+El código está en `src/application/users/delete-account.use-case.ts`; la transacción, en `src/infrastructure/users/typeorm-account-eraser.ts`.
+
 ## Inscripciones a eventos
 
 | Método y ruta | Sesión | Qué hace |

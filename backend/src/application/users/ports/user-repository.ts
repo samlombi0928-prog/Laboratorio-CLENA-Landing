@@ -20,6 +20,8 @@ export interface UserRepository {
   /** Busca por el correo ya normalizado (ver normalizeEmail). */
   findByEmail(email: string): Promise<User | null>;
   findPage(query: UserQuery): Promise<UserPageResult>;
+  /** Cuántas cuentas tienen ese rol. */
+  countByRole(role: Role): Promise<number>;
   /** Guarda el usuario. Lanza ConflictError si el correo ya está registrado. */
   save(user: User): Promise<void>;
 }

@@ -30,7 +30,8 @@
 
 .galeria__cuadricula {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  /* min(…, 100%): con el texto al 200 % en un celular, una columna de 15rem no cabe */
+  grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
   gap: 1rem;
   margin: 0;
   padding: 0;

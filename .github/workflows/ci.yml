@@ -28,8 +28,12 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Pruebas unitarias
-        run: npm test
+      # Falla si la cobertura de dominio y aplicación baja del 70 % (vitest.config.ts)
+      - name: Pruebas unitarias con cobertura
+        run: npm run test:cov
+
+      - name: Pruebas e2e
+        run: npm run test:e2e
 
       - name: Build
         run: npm run build

@@ -222,7 +222,7 @@ El stack (NestJS, React, PostgreSQL y Docker) es obligatorio según el enunciado
 
 - **Pruebas unitarias** del dominio y de los casos de uso, con meta de cobertura de 70 % en esas capas (`npm run test:cov` falla por debajo).
 - **Pruebas e2e** de la API con Supertest. Usan la misma configuración que producción (`configureApp`) y reemplazan los puertos por objetos falsos, así que no necesitan base de datos.
-- **Lint, pruebas y build** deben pasar antes de fusionar a `main`. GitHub Actions los ejecutará en cada Pull Request cuando esté configurado el CI.
+- **Lint, pruebas y build** deben pasar antes de fusionar a `main`. GitHub Actions los corre en cada Pull Request (`.github/workflows/ci.yml`), incluidas la cobertura y las e2e del backend.
 
 ## 6. Seguridad
 

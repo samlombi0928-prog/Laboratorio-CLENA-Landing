@@ -154,7 +154,7 @@ cd frontend
 npm test
 ```
 
-En cada Pull Request, GitHub Actions corre el lint, las pruebas y el build del backend y del frontend.
+En cada Pull Request, GitHub Actions corre el lint, las pruebas y el build del backend y del frontend. En el backend corren las unitarias con cobertura (falla por debajo del 70 % en dominio y aplicación) y las e2e.
 
 ## Documentación
 

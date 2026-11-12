@@ -2,6 +2,9 @@
   position: relative;
   width: 100%;
   height: 100%;
+  /* Las capas del visor (como el aviso de error) quedan por debajo del índice de salas
+     y del cuadro de historia, que se tienen que poder usar aunque el visor falle */
+  isolation: isolate;
 }
 
 .visor__lienzo {

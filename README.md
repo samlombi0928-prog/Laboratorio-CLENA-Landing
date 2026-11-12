@@ -37,12 +37,14 @@ Equipo de **Introducción a la Ingeniería de Sistemas** que visitó el CLENA, i
 | Galería con carga de imágenes | [#47](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/47), [#48](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/48) |
 | Inscripción a eventos con consentimiento y confirmación por correo | [#46](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/46) |
 | Registro e inicio de sesión con JWT y tres roles: administrador, personal del CLENA y usuario público | [#15](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/15), [#24](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/24) |
+| Eliminar la cuenta y todos sus datos (derecho de supresión, Ley 1581 de 2012) | [#16](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/16) |
 
 **Funcionalidad adicional:**
 
 | Funcionalidad | Historias |
 |---|---|
-| Recorrido por los espacios: arrastrar para mirar, pasar de una sala a otra e historia de cada sala | [#7](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/7), [#8](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/8), [#9](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/9), [#11](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/11) |
+| Recorrido por los espacios: arrastrar para mirar, pasar de una sala a otra, índice de salas, historia de cada sala y puntos de interés | [#7](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/7), [#8](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/8), [#9](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/9), [#10](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/10), [#11](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/11), [#12](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/12) |
+| Accesibilidad en toda la aplicación: teclado, lector de pantalla, contraste AA, botones de 44 px y texto ampliable al 200 % | [#13](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/13), [#14](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/14) |
 
 El backlog completo está en los [Issues](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues?q=label%3A%22historia+de+usuario%22) con la etiqueta **historia de usuario**.
 
@@ -53,6 +55,7 @@ El backlog completo está en los [Issues](https://github.com/sbritoa20/Laborator
 | Frontend | React 19 + TypeScript, Vite, React Router, Photo Sphere Viewer (visor 360°) |
 | Backend | NestJS + TypeScript con Clean Architecture, TypeORM, Swagger |
 | Base de datos | PostgreSQL 15 o superior |
+| Pruebas | Vitest en el backend y el frontend, con Testing Library en el frontend |
 | Contenedores | Docker y docker-compose |
 
 ## Estructura del repositorio
@@ -86,9 +89,10 @@ Requisitos: Node.js 22.12 o superior y PostgreSQL 15 o superior.
 
 ```bash
 cd backend
-npm install
+npm ci
 cp .env.example .env   # ajustar los datos de la base de datos
-npm run migration:run
+npm run migration:run   # crea las tablas y carga las secciones y los eventos de ejemplo
+npm run galeria:semilla # opcional: imágenes de ejemplo de la galería
 npm run start:dev
 ```
 
@@ -96,9 +100,17 @@ npm run start:dev
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
+
+**Primer administrador.** La aplicación no da el rol de administrador: la persona se registra en la página y luego se corre, en `backend/`:
+
+```bash
+npm run usuarios:hacer-admin -- correo@ejemplo.com
+```
+
+Desde el panel, el administrador nombra al personal del CLENA.
 
 ### Direcciones
 
@@ -110,6 +122,21 @@ npm run dev
 | http://localhost:3000/api/v1/health | Estado de la API y de la base de datos |
 
 Más detalles en [backend/README.md](backend/README.md) y [frontend/README.md](frontend/README.md).
+
+## Pruebas
+
+```bash
+cd backend
+npm test            # unitarias
+npm run test:e2e    # de punta a punta, sin base de datos
+```
+
+```bash
+cd frontend
+npm test
+```
+
+En cada Pull Request, GitHub Actions corre el lint, las pruebas y el build del backend y del frontend.
 
 ## Documentación
 

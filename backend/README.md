@@ -67,6 +67,7 @@ node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
 | `npm run migration:run` | Aplica las migraciones pendientes |
 | `npm run migration:revert` | Revierte la última migración |
 | `npm run usuarios:hacer-admin -- <correo>` | Convierte en administrador a un usuario ya registrado |
+| `npm run galeria:semilla` | Carga las 13 imágenes de ejemplo de la galería (ver [Galería](#galería)) |
 
 El esquema de la base de datos solo cambia con migraciones: `synchronize` está desactivado. Después de clonar o de traer cambios, corra `npm run migration:run` antes de `npm run start:dev`.
 
@@ -227,6 +228,20 @@ Cómo funciona la subida:
 - **Validación:** solo JPG o PNG, revisando los primeros bytes del archivo y no la extensión. Máximo 10 MB. Un archivo más grande responde 413; uno que no es JPG ni PNG, o la falta de imagen, 422, y el mensaje explica el motivo. Todo se valida antes de guardar el archivo, así que una petición inválida no deja archivos sueltos.
 - **Base de datos:** la tabla `gallery_images` guarda la clave del archivo (`image_key`), nunca la URL. Si falla el guardado en la base de datos, el archivo recién subido se borra.
 - **Cuenta eliminada (#16):** `uploaded_by` queda en `NULL` y la imagen se conserva, porque es contenido del CLENA y no de la persona.
+
+### Imágenes de ejemplo para la demo
+
+```bash
+npm run galeria:semilla
+```
+
+Carga 13 fotos del recorrido (la fachada, los pasillos de la biblioteca, la sala infantil, el museo y el café), así que la galería tiene una segunda página para probar la paginación. Las fotos están en `backend/seed/galeria/`, son las que el equipo de origen autorizó a usar y en ninguna se reconoce a una persona.
+
+- **Se puede correr más de una vez:** lo que ya existe no se duplica. Si falta un archivo, por ejemplo porque se perdió el volumen de `STORAGE_DIR`, se vuelve a copiar.
+- **Por qué no es una migración:** una migración solo cambia la base de datos, y estas imágenes también necesitan sus archivos en `STORAGE_DIR`. Este comando hace las dos cosas.
+- **En Docker:** hay que correrlo dentro del contenedor del backend, después de que arranque: `docker compose exec backend npm run galeria:semilla`.
+- **Las filas llevan `uploaded_by` vacío:** no las subió ninguna cuenta. Desde el panel se pueden eliminar como cualquier otra imagen, y eso borra también su archivo.
+- Los textos alternativos están en `src/infrastructure/database/gallery-seed-data.ts`. Describen solo lo que se ve en cada foto; una prueba (`gallery-seed-data.spec.ts`) comprueba que respeten los límites de la galería y que los archivos existan.
 
 ## Almacenamiento de archivos
 

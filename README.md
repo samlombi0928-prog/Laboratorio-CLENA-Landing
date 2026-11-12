@@ -165,9 +165,9 @@ En cada Pull Request, GitHub Actions corre el lint, las pruebas y el build del b
 | [docs/inception.pdf](docs/inception.pdf) | Acta de la reunión de Inception con el equipo de Introducción |
 | [docs/modelo-dominio.pdf](docs/modelo-dominio.pdf) | Modelo de dominio, reglas de negocio, glosario y casos de uso |
 | [docs/modelo-datos.pdf](docs/modelo-datos.pdf) | Diagrama entidad-relación, índices y datos personales |
-| [docs/arquitectura.md](docs/arquitectura.md) | Arquitectura con el modelo C4 y decisiones técnicas |
-| [docs/sprint-planning.md](docs/sprint-planning.md), [docs/daily-scrum.md](docs/daily-scrum.md), [docs/sprint-review.md](docs/sprint-review.md) y [docs/sprint-retrospective.md](docs/sprint-retrospective.md) | Actas de los eventos de Scrum del Sprint 1 ([#38](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/38)) |
-| [docs/evidencias.md](docs/evidencias.md) | Enlaces a las grabaciones de las reuniones ([#38](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/38)) |
+| [docs/arquitectura.pdf](docs/arquitectura.pdf) | Arquitectura con el modelo C4 (niveles 1 a 3) y decisiones técnicas |
+| [docs/daily-scrum.pdf](docs/daily-scrum.pdf) | Actas de las Daily Scrum del Sprint 1 ([#38](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/38)) |
+| [docs/evidencias.pdf](docs/evidencias.pdf) | Enlaces a las grabaciones de las reuniones ([#38](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/38)) |
 
 ## Forma de trabajo
 

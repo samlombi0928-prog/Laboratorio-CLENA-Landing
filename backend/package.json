@@ -26,7 +26,8 @@
     "migration:generate": "npm run build && npm run typeorm -- migration:generate -d dist/infrastructure/database/data-source.js",
     "migration:run": "npm run build && npm run typeorm -- migration:run -d dist/infrastructure/database/data-source.js",
     "migration:revert": "npm run build && npm run typeorm -- migration:revert -d dist/infrastructure/database/data-source.js",
-    "usuarios:hacer-admin": "npm run build && node --env-file-if-exists=.env dist/infrastructure/database/make-admin.js"
+    "usuarios:hacer-admin": "npm run build && node --env-file-if-exists=.env dist/infrastructure/database/make-admin.js",
+    "galeria:semilla": "npm run build && node --env-file-if-exists=.env dist/infrastructure/database/seed-gallery.js"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",

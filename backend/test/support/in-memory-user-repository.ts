@@ -4,6 +4,7 @@ import type {
   UserRepository,
 } from '../../src/application/users/ports/user-repository.js';
 import { ConflictError } from '../../src/domain/errors/domain-errors.js';
+import type { Role } from '../../src/domain/users/role.js';
 import type { User } from '../../src/domain/users/user.js';
 
 export class InMemoryUserRepository implements UserRepository {
@@ -34,6 +35,12 @@ export class InMemoryUserRepository implements UserRepository {
       items: matching.slice(start, start + query.pageSize),
       total: matching.length,
     });
+  }
+
+  countByRole(role: Role): Promise<number> {
+    return Promise.resolve(
+      [...this.users.values()].filter((u) => u.role === role).length,
+    );
   }
 
   save(user: User): Promise<void> {

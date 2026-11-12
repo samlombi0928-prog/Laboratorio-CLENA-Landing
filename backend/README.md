@@ -67,6 +67,7 @@ node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
 | `npm run migration:run` | Aplica las migraciones pendientes |
 | `npm run migration:revert` | Revierte la última migración |
 | `npm run usuarios:hacer-admin -- <correo>` | Convierte en administrador a un usuario ya registrado |
+| `npm run galeria:semilla` | Carga las 13 imágenes de ejemplo de la galería (ver [Galería](#galería)) |
 
 El esquema de la base de datos solo cambia con migraciones: `synchronize` está desactivado. Después de clonar o de traer cambios, corra `npm run migration:run` antes de `npm run start:dev`.
 
@@ -154,6 +155,34 @@ Reglas:
 - **Eliminar:** también borra las inscripciones del evento. El panel debe pedir confirmación.
 
 Con los eventos de ejemplo, la agenda pública muestra el taller, el jazz y la feria; en el panel, la visita sale `pendiente` y el conversatorio `cerrado`.
+
+## Eliminar mi cuenta
+
+Derecho de supresión de la Ley 1581 de 2012 (HU-10).
+
+| Método y ruta | Sesión | Qué hace |
+|---|---|---|
+| `DELETE /api/v1/cuenta` | Cualquier usuario con sesión | Elimina su propia cuenta y sus datos. Cuerpo: `contrasena`. Responde 204 y borra la cookie de la sesión |
+
+Qué se borra y qué no:
+
+| Dato | Qué pasa |
+|---|---|
+| La cuenta (nombre, correo, hash de la contraseña, consentimiento) | Se elimina |
+| Sus sesiones abiertas | Se eliminan (`ON DELETE CASCADE`): la sesión no se puede renovar |
+| Sus recorridos | Se eliminan (`ON DELETE CASCADE`), y sus **portadas se borran del almacenamiento** |
+| Sus inscripciones a eventos | Se eliminan **por correo**: `event_registrations` no está ligada a la cuenta, así que se borran las inscripciones hechas con el mismo correo |
+| Las imágenes de la galería que subió | **Se conservan**, con `uploaded_by` vacío (`ON DELETE SET NULL`): son contenido del CLENA, no de la persona |
+
+Reglas:
+
+- **Pide la contraseña otra vez** (`contrasena`), porque no se puede deshacer y así un access token robado no alcanza. Si no es correcta responde **422 `CONTRASENA_INCORRECTA`**; no usa 401 para que el frontend no lo confunda con un access token vencido y vuelva a intentarlo.
+- **La única cuenta de administrador no se puede eliminar:** responde **422 `ULTIMO_ADMINISTRADOR`**. Primero hay que nombrar a otro administrador con `usuarios:hacer-admin`.
+- **Todo o nada:** las inscripciones y la cuenta (con sus recorridos y sesiones) se borran en **una sola transacción**. Después se borran los archivos; si alguno falla, la cuenta ya no existe y queda un aviso en los logs con las claves que sobraron (son rutas con un uuid, sin datos personales).
+- **Límite de intentos:** 10 por minuto y por IP, igual que el inicio de sesión, porque la ruta comprueba una contraseña.
+- **Limitación conocida:** el access token dura hasta 15 minutos y no se revoca. Con ese token una cuenta ya eliminada recibe 404 en `/auth/perfil`, y si intenta crear un recorrido recibe un 500 (la llave foránea no existe), sin dejar datos ni archivos. Después de ese tiempo, 401.
+
+El código está en `src/application/users/delete-account.use-case.ts`; la transacción, en `src/infrastructure/users/typeorm-account-eraser.ts`.
 
 ## Inscripciones a eventos
 
@@ -253,6 +282,20 @@ Cómo funciona la subida:
 - **Validación:** solo JPG o PNG, revisando los primeros bytes del archivo y no la extensión. Máximo 10 MB. Un archivo más grande responde 413; uno que no es JPG ni PNG, o la falta de imagen, 422, y el mensaje explica el motivo. Todo se valida antes de guardar el archivo, así que una petición inválida no deja archivos sueltos.
 - **Base de datos:** la tabla `gallery_images` guarda la clave del archivo (`image_key`), nunca la URL. Si falla el guardado en la base de datos, el archivo recién subido se borra.
 - **Cuenta eliminada (#16):** `uploaded_by` queda en `NULL` y la imagen se conserva, porque es contenido del CLENA y no de la persona.
+
+### Imágenes de ejemplo para la demo
+
+```bash
+npm run galeria:semilla
+```
+
+Carga 13 fotos del recorrido (la fachada, los pasillos de la biblioteca, la sala infantil, el museo y el café), así que la galería tiene una segunda página para probar la paginación. Las fotos están en `backend/seed/galeria/`, son las que el equipo de origen autorizó a usar y en ninguna se reconoce a una persona.
+
+- **Se puede correr más de una vez:** lo que ya existe no se duplica. Si falta un archivo, por ejemplo porque se perdió el volumen de `STORAGE_DIR`, se vuelve a copiar.
+- **Por qué no es una migración:** una migración solo cambia la base de datos, y estas imágenes también necesitan sus archivos en `STORAGE_DIR`. Este comando hace las dos cosas.
+- **En Docker:** hay que correrlo dentro del contenedor del backend, después de que arranque: `docker compose exec backend npm run galeria:semilla`.
+- **Las filas llevan `uploaded_by` vacío:** no las subió ninguna cuenta. Desde el panel se pueden eliminar como cualquier otra imagen, y eso borra también su archivo.
+- Los textos alternativos están en `src/infrastructure/database/gallery-seed-data.ts`. Describen solo lo que se ve en cada foto; una prueba (`gallery-seed-data.spec.ts`) comprueba que respeten los límites de la galería y que los archivos existan.
 
 ## Almacenamiento de archivos
 

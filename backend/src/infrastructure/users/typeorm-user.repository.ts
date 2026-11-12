@@ -5,6 +5,7 @@ import type {
   UserRepository,
 } from '../../application/users/ports/user-repository.js';
 import { ConflictError } from '../../domain/errors/domain-errors.js';
+import type { Role } from '../../domain/users/role.js';
 import type { User } from '../../domain/users/user.js';
 import { UserMapper } from './user.mapper.js';
 import type { UserOrmEntity } from './user.orm-entity.js';
@@ -43,6 +44,10 @@ export class TypeOrmUserRepository implements UserRepository {
       .limit(query.pageSize)
       .getManyAndCount();
     return { items: rows.map((row) => UserMapper.toDomain(row)), total };
+  }
+
+  countByRole(role: Role): Promise<number> {
+    return this.repository.countBy({ role });
   }
 
   async save(user: User): Promise<void> {

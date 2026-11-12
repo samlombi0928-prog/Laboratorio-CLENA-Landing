@@ -34,10 +34,19 @@ export interface OpcionesPedido {
   token?: string | null
 }
 
+/** Un FormData (subida de archivos) se envía tal cual; cualquier otro cuerpo, como JSON. */
+function cuerpoDelPedido(cuerpo: unknown): BodyInit | undefined {
+  if (cuerpo === undefined) return undefined
+  return cuerpo instanceof FormData ? cuerpo : JSON.stringify(cuerpo)
+}
+
 /** Hace una petición a la API y devuelve el JSON, o lanza ErrorApi. */
 export async function pedir<T>(ruta: string, opciones: OpcionesPedido = {}): Promise<T> {
   const headers: Record<string, string> = {}
-  if (opciones.cuerpo !== undefined) headers['Content-Type'] = 'application/json'
+  // Con FormData no se fija el Content-Type: el navegador lo pone con el separador de las partes
+  if (opciones.cuerpo !== undefined && !(opciones.cuerpo instanceof FormData)) {
+    headers['Content-Type'] = 'application/json'
+  }
   if (opciones.token) headers.Authorization = `Bearer ${opciones.token}`
 
   let respuesta: Response
@@ -45,7 +54,7 @@ export async function pedir<T>(ruta: string, opciones: OpcionesPedido = {}): Pro
     respuesta = await fetch(`${API}${ruta}`, {
       method: opciones.metodo ?? 'GET',
       headers,
-      body: opciones.cuerpo === undefined ? undefined : JSON.stringify(opciones.cuerpo),
+      body: cuerpoDelPedido(opciones.cuerpo),
       credentials: 'same-origin',
     })
   } catch {

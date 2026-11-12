@@ -1,6 +1,8 @@
 # Modelo de datos
 
-Este documento describe la base de datos del sistema del recorrido interactivo del CLENA: qué tablas existen, qué guarda cada columna, cómo se relacionan y por qué se diseñaron así.
+> **Fuente del informe.** El informe que se entrega es `modelo-datos.pdf`. Este archivo es su fuente (GitHub dibuja el diagrama de abajo); si cambia, hay que volver a generar el PDF.
+
+Este documento describe la base de datos de CLENA Digital, la landing interactiva del CLENA: qué tablas existen, qué guarda cada columna, cómo se relacionan y por qué se diseñaron así.
 
 Está escrito a partir del esquema real: se ejecutaron las migraciones en un PostgreSQL 16 limpio y se comparó cada tabla con lo que aquí se dice. Para el diseño de las capas del backend, ver el documento de arquitectura ([`arquitectura.md`](arquitectura.md), historia #29), y para las reglas de negocio y el glosario, el [modelo de dominio](modelo-dominio.pdf) (#78).
 
@@ -208,7 +210,7 @@ Restricciones e índices:
 
 ### 3.5 `events`
 
-Una fila por evento de la agenda del CLENA. La tabla ya existe y las inscripciones (#46) dependen de ella, pero la aplicación todavía **no tiene** pantalla ni endpoint para crear eventos (historias #44 y #45): hoy solo existen los eventos de ejemplo.
+Una fila por evento de la agenda del CLENA. El personal y los administradores los crean, editan y eliminan desde el panel de la agenda (historias #44 y #45, endpoints `POST`, `PATCH` y `DELETE /api/v1/eventos`); la agenda pública los lista con `GET /api/v1/eventos`. Las inscripciones (#46) dependen de esta tabla.
 
 | Columna | Tipo | ¿Obligatoria? | Qué guarda |
 |---|---|---|---|
@@ -230,7 +232,9 @@ Restricciones e índices:
 - `CHK_events_publish_period`: `publish_until` no puede ser anterior a `publish_from`.
 - `IDX_events_starts_at`: índice sobre `starts_at`. La agenda lista los eventos por fecha, el más próximo primero.
 
-Un evento está vigente cuando la fecha actual está entre `publish_from` y `publish_until`; solo entonces acepta inscripciones. Esas dos fechas son independientes de `starts_at`, así que un evento se puede anunciar con anticipación. En los eventos de ejemplo la publicación termina cuando el evento empieza.
+El estado de un evento **no se guarda**: se calcula con la fecha actual. Está *programado* si todavía no llega `publish_from`, *publicado* si la fecha está entre `publish_from` y `publish_until` y el evento no ha empezado, y *cerrado* en cualquier otro caso. Solo un evento publicado aparece en la agenda y acepta inscripciones. Esas fechas son independientes de `starts_at`, así que un evento se puede anunciar con anticipación. En los eventos de ejemplo la publicación termina cuando el evento empieza.
+
+Editar el cupo no revisa cuántas personas hay inscritas: se puede bajar por debajo de ese número. Las inscripciones que ya existen se conservan y las nuevas se rechazan hasta que haya lugar.
 
 El cupo se respeta incluso con inscripciones simultáneas: el repositorio abre una transacción, bloquea la fila del evento (`SELECT … FOR UPDATE`), cuenta las inscripciones y guarda la nueva solo si todavía hay lugar. Las inscripciones al mismo evento esperan su turno, y si está lleno se responde `EVENTO_SIN_CUPOS`.
 
@@ -284,7 +288,7 @@ La migración `SeedSectionItems` carga el contenido inicial: 5 espacios, 3 servi
 
 ## 4. Relaciones y qué pasa al eliminar una cuenta
 
-Tres relaciones salen de `users` y una sale de `events`. Lo importante es qué hace la base cuando se elimina una cuenta (por ejemplo con la historia #16, eliminar mi cuenta) o un evento:
+Tres relaciones salen de `users` y una sale de `events`. Lo importante es qué hace la base cuando se elimina una cuenta (historia #16, eliminar mi cuenta) o un evento:
 
 | Relación | Al eliminar el usuario | Por qué |
 |---|---|---|
@@ -293,9 +297,9 @@ Tres relaciones salen de `users` y una sale de `events`. Lo importante es qué h
 | `gallery_images.uploaded_by` → `users.id` | La imagen **se conserva** y `uploaded_by` queda en `NULL` (`SET NULL`) | La imagen es contenido del CLENA, no de la persona. Solo se borra el vínculo con ella |
 | `event_registrations.event_id` → `events.id` | Al eliminar un **evento** se eliminan sus inscripciones (`CASCADE`) | Una inscripción no tiene sentido sin el evento |
 
-**Importante (archivos):** el borrado en cascada elimina **filas**, pero no **archivos**. Las portadas de los recorridos eliminados siguen en disco. El caso de uso de eliminar cuenta (#16) debe borrar esos archivos por su cuenta, antes de borrar al usuario.
+**Importante (archivos):** el borrado en cascada elimina **filas**, pero no **archivos**. El caso de uso de eliminar cuenta (#16, `DELETE /api/v1/cuenta`) lee las claves de las portadas de los recorridos antes de borrar y, cuando la transacción termina, las borra del almacenamiento. Se hace en ese orden a propósito: si fuera al revés y la base fallara, la cuenta seguiría existiendo pero sin sus archivos. Si un archivo no se puede borrar, la cuenta ya está eliminada y queda un aviso en los logs con su clave.
 
-**Importante (inscripciones):** `event_registrations` **no** tiene llave foránea a `users`. Una persona se inscribe con nombre y correo, tenga cuenta o no, así que la base no sabe qué inscripciones son de qué cuenta. Al eliminar una cuenta, esas filas **no se borran solas**: el caso de uso #16 tendría que buscarlas por correo (`email`) y eliminarlas, porque son datos personales de la misma persona. Esto está por decidir con el equipo, porque la historia #16 todavía no está implementada.
+**Importante (inscripciones):** `event_registrations` **no** tiene llave foránea a `users`. Una persona se inscribe con nombre y correo, tenga cuenta o no, así que la base no sabe qué inscripciones son de qué cuenta y esas filas **no se borran solas**. Por eso el caso de uso de eliminar cuenta las busca por correo (`email`) y las elimina, **en la misma transacción** que la cuenta, porque son datos personales de la misma persona: o se borra todo o no se borra nada. Pide además la contraseña otra vez, y no deja eliminar la única cuenta de administrador.
 
 ## 5. Los archivos no están en la base
 
@@ -320,7 +324,7 @@ La Ley 1581 de 2012 pide guardar solo los datos necesarios para una finalidad cl
 | Hash de la contraseña (nunca la contraseña) | `users` | Comprobar la contraseña al iniciar sesión | Con la cuenta (#16) |
 | Fecha y versión del aviso de privacidad aceptado | `users` y `event_registrations` | Demostrar qué aviso aceptó cada persona y cuándo | Con la cuenta o con la inscripción |
 | Huella de la sesión y su fecha de caducidad | `refresh_sessions` | Mantener la sesión abierta sin pedir la contraseña otra vez | Con la cuenta, en cascada |
-| Nombre y correo de quien se inscribe | `event_registrations` | Reservar el cupo y enviar la confirmación | Con el evento, en cascada; por cuenta, pendiente (sección 4) |
+| Nombre y correo de quien se inscribe | `event_registrations` | Reservar el cupo y enviar la confirmación | Con el evento, en cascada; y por correo cuando la persona elimina su cuenta (sección 4) |
 | Recorridos que crea la persona | `tours` | Que cada quien administre sus recorridos | Con la cuenta, en cascada |
 | Quién subió una imagen | `gallery_images.uploaded_by` | Saber quién la subió | Queda vacío si se elimina la cuenta |
 
@@ -338,6 +342,8 @@ No se guarda ningún teléfono, documento de identidad, dirección ni dato de pa
 | La contraseña y el refresh token nunca se guardan | Solo sus huellas, para que una filtración de la base no entregue accesos |
 | Las inscripciones guardan solo nombre, correo y consentimiento | Datos mínimos (Ley 1581): no se pide cuenta ni ningún otro dato para inscribirse |
 | El cupo se controla bloqueando la fila del evento | Dos personas que se inscriben a la vez al último cupo no pueden pasarse del límite, y no hace falta un contador que se desincronice |
+| Eliminar la cuenta borra las inscripciones por correo, en la misma transacción | No hay llave foránea entre inscripción y cuenta, así que sin este paso quedarían datos personales de una persona que pidió borrarlos |
+| El estado de un evento (programado, publicado, cerrado) se calcula y no se guarda | No hay una columna que se desactualice: depende solo de las fechas y de la hora actual |
 | Las fechas de los eventos de ejemplo se calculan al migrar | La demo siempre tiene eventos vigentes, pero las fechas dependen del día en que se corrió la migración |
 
 ## 8. Cómo comprobar que este documento sigue siendo cierto
@@ -364,7 +370,6 @@ psql -U <usuario> -d <base> -c "\d gallery_images"
 Estas partes se diseñarán con sus historias y se agregarán a este documento cuando existan:
 
 - **Escenas** de los recorridos (#18): irán relacionadas con `tours`. Falta acordar con el equipo cómo se marca la escena inicial de cada recorrido (propuesta: una columna `is_initial`).
-- **Crear y editar eventos** (#44, #45): la tabla `events` ya existe, pero los eventos solo se cargan con la migración de ejemplo.
 - **Publicación de recorridos**: hoy `status` ya acepta `published`, pero todavía no hay una acción para publicar.
 - **Aviso de privacidad definitivo**: la versión actual es provisional.
-- **Búsqueda por título en la galería**: usa `ILIKE '%texto%'`, que no aprovecha un índice normal. Si la galería crece mucho, convendría un índice `pg_trgm`.
+- **Búsqueda por texto en la galería y en la agenda**: usan `ILIKE '%texto%'` (por título, y en la agenda también por lugar), que no aprovecha un índice normal. Si crecen mucho, convendría un índice `pg_trgm`.

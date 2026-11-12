@@ -15,6 +15,7 @@ export function BarraSesion() {
         <>
           <span className="barra-sesion__nombre">Hola, {usuario.nombre.split(' ')[0]}</span>
           {ROLES_PANEL.includes(usuario.rol) && <Link to="/panel">Panel</Link>}
+          <Link to="/mi-cuenta">Mi cuenta</Link>
           <button type="button" onClick={() => void salir()}>
             Salir
           </button>

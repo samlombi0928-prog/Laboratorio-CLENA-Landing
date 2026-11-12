@@ -1,0 +1,52 @@
+.mi-cuenta__datos {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.5rem 1rem;
+  margin: 1rem 0 2rem;
+}
+
+.mi-cuenta__datos dt {
+  font-weight: 700;
+}
+
+.mi-cuenta__datos dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.mi-cuenta__eliminar {
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--color-borde);
+}
+
+.mi-cuenta__eliminar h2 {
+  margin-top: 0;
+}
+
+.mi-cuenta__eliminar ul {
+  padding-left: 1.25rem;
+}
+
+.mi-cuenta__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Botón de la acción que no se puede deshacer: en el color de error */
+.boton-eliminar {
+  width: auto;
+  color: var(--color-fondo);
+  background-color: var(--color-error);
+}
+
+.mi-cuenta__eliminar .boton-peligro {
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.mi-cuenta__enlace {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}

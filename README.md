@@ -63,7 +63,7 @@ El backlog completo está en los [Issues](https://github.com/sbritoa20/Laborator
 ```
 backend/     API REST en NestJS (dominio, aplicación, infraestructura y presentación)
 frontend/    Aplicación web en React
-docs/        Informes del proyecto en PDF e imágenes (docs/img/)
+docs/        Informes del proyecto
 ```
 
 Las carpetas `problema/` y `propuesta/` de la raíz son el material original del equipo de Introducción. Las fotos originales de la visita están en el Drive del equipo; en el repositorio solo quedan las versiones comprimidas que usa el recorrido (`frontend/public/escenas/`).
@@ -128,6 +128,8 @@ npm run dev
 npm run usuarios:hacer-admin -- correo@ejemplo.com
 ```
 
+Con Docker: `docker compose exec backend npm run usuarios:hacer-admin -- correo@ejemplo.com`.
+
 Desde el panel, el administrador nombra al personal del CLENA.
 
 ### Direcciones
@@ -162,10 +164,10 @@ En cada Pull Request, GitHub Actions corre el lint, las pruebas y el build del b
 |---|---|
 | [docs/inception.pdf](docs/inception.pdf) | Acta de la reunión de Inception con el equipo de Introducción |
 | [docs/modelo-dominio.pdf](docs/modelo-dominio.pdf) | Modelo de dominio, reglas de negocio, glosario y casos de uso |
-| [docs/modelo-datos.pdf](docs/modelo-datos.pdf) | Diagrama entidad-relación e índices |
-| [docs/arquitectura.pdf](docs/arquitectura.pdf) | Arquitectura con el modelo C4 y decisiones técnicas |
-| [docs/daily-scrum.pdf](docs/daily-scrum.pdf) | Actas de las Daily Scrum |
-| [docs/evidencias.pdf](docs/evidencias.pdf) | Enlaces a las grabaciones de las reuniones |
+| [docs/modelo-datos.pdf](docs/modelo-datos.pdf) | Diagrama entidad-relación, índices y datos personales |
+| [docs/arquitectura.md](docs/arquitectura.md) | Arquitectura con el modelo C4 y decisiones técnicas |
+| [docs/sprint-planning.md](docs/sprint-planning.md), [docs/daily-scrum.md](docs/daily-scrum.md), [docs/sprint-review.md](docs/sprint-review.md) y [docs/sprint-retrospective.md](docs/sprint-retrospective.md) | Actas de los eventos de Scrum del Sprint 1 ([#38](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/38)) |
+| [docs/evidencias.md](docs/evidencias.md) | Enlaces a las grabaciones de las reuniones ([#38](https://github.com/sbritoa20/Laboratorio-CLENA-Landing/issues/38)) |
 
 ## Forma de trabajo
 

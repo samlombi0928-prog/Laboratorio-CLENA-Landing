@@ -1,5 +1,10 @@
-import type { UserRepository } from '../../src/application/users/ports/user-repository.js';
+import type {
+  UserPageResult,
+  UserQuery,
+  UserRepository,
+} from '../../src/application/users/ports/user-repository.js';
 import { ConflictError } from '../../src/domain/errors/domain-errors.js';
+import type { Role } from '../../src/domain/users/role.js';
 import type { User } from '../../src/domain/users/user.js';
 
 export class InMemoryUserRepository implements UserRepository {
@@ -12,6 +17,30 @@ export class InMemoryUserRepository implements UserRepository {
   findByEmail(email: string): Promise<User | null> {
     const user = [...this.users.values()].find((u) => u.email === email);
     return Promise.resolve(user ?? null);
+  }
+
+  findPage(query: UserQuery): Promise<UserPageResult> {
+    const search = query.search?.toLowerCase();
+    const matching = [...this.users.values()]
+      .filter((u) => !query.role || u.role === query.role)
+      .filter(
+        (u) =>
+          !search ||
+          u.name.toLowerCase().includes(search) ||
+          u.email.includes(search),
+      )
+      .sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
+    const start = (query.page - 1) * query.pageSize;
+    return Promise.resolve({
+      items: matching.slice(start, start + query.pageSize),
+      total: matching.length,
+    });
+  }
+
+  countByRole(role: Role): Promise<number> {
+    return Promise.resolve(
+      [...this.users.values()].filter((u) => u.role === role).length,
+    );
   }
 
   save(user: User): Promise<void> {

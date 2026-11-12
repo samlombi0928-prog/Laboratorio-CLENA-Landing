@@ -273,4 +273,24 @@ describe('Autenticación (e2e)', () => {
     }
     expect(status).toBe(429);
   });
+
+  it('detrás de un proxy limita los intentos por visitante, con la IP que agrega el proxy', async () => {
+    const intentar = (forwardedFor: string) =>
+      http
+        .post('/api/v1/auth/login')
+        .set('X-Forwarded-For', forwardedFor)
+        .send({ correo: 'ana@correo.com', contrasena: 'equivocada' });
+
+    let status = 0;
+    for (let i = 0; i < 12 && status !== 429; i++) {
+      status = (await intentar('203.0.113.10')).status;
+    }
+    expect(status).toBe(429);
+
+    // Otro visitante no queda bloqueado por los intentos del primero.
+    expect((await intentar('203.0.113.20')).status).toBe(401);
+
+    // Anteponer una IP falsa no sirve: cuenta la última, la que agrega el proxy.
+    expect((await intentar('198.51.100.7, 203.0.113.10')).status).toBe(429);
+  });
 });

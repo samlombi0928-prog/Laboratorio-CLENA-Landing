@@ -4,6 +4,7 @@ import {
   ConflictException,
   Logger,
   NotFoundException,
+  PayloadTooLargeException,
 } from '@nestjs/common';
 import {
   AccessDeniedError,
@@ -103,6 +104,33 @@ describe('GlobalExceptionFilter', () => {
     filter.catch(new ConflictException(), host);
     expect(json).toHaveBeenLastCalledWith(
       expect.objectContaining({ estado: 409, codigo: 'CONFLICTO' }),
+    );
+  });
+
+  it('no confunde un 400 cualquiera con un JSON mal formado', () => {
+    const { host, json } = createHost();
+
+    filter.catch(new BadRequestException('Formato no soportado'), host);
+
+    expect(json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        codigo: 'SOLICITUD_INVALIDA',
+        mensaje: 'Formato no soportado',
+      }),
+    );
+  });
+
+  it('traduce al español el error de archivo demasiado grande', () => {
+    const { host, json } = createHost();
+
+    filter.catch(new PayloadTooLargeException('File too large'), host);
+
+    expect(json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        estado: 413,
+        codigo: 'ARCHIVO_DEMASIADO_GRANDE',
+        mensaje: 'El archivo supera el tamaño máximo permitido',
+      }),
     );
   });
 

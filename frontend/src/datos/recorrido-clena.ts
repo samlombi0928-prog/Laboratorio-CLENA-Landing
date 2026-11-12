@@ -1,4 +1,4 @@
-import type { Conexion, Escena, FragmentoHistoria } from '../tipos/escena'
+import type { Conexion, Escena, FragmentoHistoria, PuntoInteres } from '../tipos/escena'
 
 // Datos temporales: se reemplazan por la API de recorridos cuando esté lista.
 // Las fotos de la cámara Kodak (gran angular) están enderezadas al formato del visor
@@ -27,7 +27,42 @@ function kodak(
   }
 }
 
-export const escenasClena: Escena[] = [
+// Objetos destacados por sala. Los textos son provisionales, como los de la historia:
+// solo describen lo que se ve en la foto hasta que el equipo de Introducción entregue los suyos.
+const puntosInteres: Record<string, PuntoInteres[]> = {
+  corredor: [
+    {
+      id: 'cartelera',
+      titulo: 'Cartelera cultural',
+      texto:
+        'Aquí se anuncian las exposiciones, los talleres y los eventos del mes en el CLENA.',
+      yaw: -34,
+      pitch: 6,
+    },
+  ],
+  'biblioteca-meira': [
+    {
+      id: 'letrero-meira',
+      titulo: 'Sala de lectura Meira del Mar',
+      texto:
+        'La sala lleva el nombre de Meira del Mar, poeta barranquillera. Adentro hay mesas para leer y estudiar en silencio.',
+      yaw: -32,
+      pitch: 17,
+    },
+  ],
+  'exposiciones-frente': [
+    {
+      id: 'mural-heins',
+      titulo: 'Rosario Heins: La permanencia del talento',
+      texto:
+        'Es el título de la exposición. Debajo está su obra principal: un mural con escenas de playa, rodeado de cuadros de la misma serie.',
+      yaw: 0,
+      pitch: -6,
+    },
+  ],
+}
+
+const escenasSinPuntos: Escena[] = [
   // Afuera
   kodak(
     'corredor',
@@ -379,3 +414,8 @@ export const escenasClena: Escena[] = [
     ],
   },
 ]
+
+export const escenasClena: Escena[] = escenasSinPuntos.map((escena) => ({
+  ...escena,
+  puntosInteres: puntosInteres[escena.id] ?? [],
+}))

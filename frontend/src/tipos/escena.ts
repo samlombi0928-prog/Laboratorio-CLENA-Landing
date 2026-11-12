@@ -14,6 +14,17 @@ export interface Conexion {
   pitch: number
 }
 
+/** Objeto destacado de una sala: al tocarlo se abre un panel con su información */
+export interface PuntoInteres {
+  id: string
+  titulo: string
+  texto: string
+  /** Ángulo horizontal en grados: 0 es el centro, negativo a la izquierda */
+  yaw: number
+  /** Ángulo vertical en grados: 0 es el horizonte, negativo hacia abajo */
+  pitch: number
+}
+
 /** Parte de la historia de una sala que se muestra en el cuadro inferior izquierdo */
 export interface FragmentoHistoria {
   titulo: string
@@ -36,4 +47,5 @@ export interface Escena {
   inclinacionMinima?: number
   conexiones: Conexion[]
   historia: FragmentoHistoria[]
+  puntosInteres?: PuntoInteres[]
 }

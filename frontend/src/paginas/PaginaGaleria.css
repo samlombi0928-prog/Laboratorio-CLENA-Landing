@@ -1,0 +1,84 @@
+.galeria {
+  max-width: 72rem;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.galeria h1 {
+  margin: 1rem 0 0.5rem;
+  font-size: 1.75rem;
+}
+
+.galeria__volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 44px;
+  font-size: 0.9375rem;
+  color: inherit;
+}
+
+.galeria__intro {
+  margin: 0 0 2rem;
+  color: var(--color-texto-suave);
+}
+
+.galeria__estado {
+  padding: 1.5rem 0;
+}
+
+.galeria__cuadricula {
+  display: grid;
+  /* min(…, 100%): con el texto al 200 % en un celular, una columna de 15rem no cabe */
+  grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.galeria__miniatura {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+  font: inherit;
+  color: var(--color-texto);
+  text-align: left;
+  background-color: var(--color-superficie);
+  border: 2px solid transparent;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.galeria__miniatura:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-acento);
+}
+
+.galeria__miniatura img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  /* Fondo mientras carga la foto */
+  background-color: var(--color-borde);
+}
+
+.galeria__titulo {
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+}
+
+.galeria__paginacion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}

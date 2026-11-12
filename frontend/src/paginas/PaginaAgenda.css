@@ -1,0 +1,70 @@
+.agenda {
+  max-width: 48rem;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.agenda .pagina-formulario__volver {
+  color: inherit;
+}
+
+.agenda h1 {
+  margin: 1rem 0 0.5rem;
+}
+
+.agenda__intro {
+  margin: 0 0 1.5rem;
+  color: var(--color-texto-suave);
+}
+
+.agenda__lista {
+  display: grid;
+  /* Sin esto la columna crece con la palabra más larga y, con el texto al 200 %, se sale */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agenda__evento {
+  padding: 1.25rem;
+  background-color: var(--color-superficie);
+  border-left: 4px solid var(--color-acento);
+  border-radius: 0.75rem;
+}
+
+.agenda__evento h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.agenda__evento p {
+  margin: 0 0 0.5rem;
+}
+
+.agenda__cuando {
+  font-weight: 700;
+}
+
+/* La primera letra en mayúscula: «Sábado 21 de noviembre…» */
+.agenda__cuando time::first-letter {
+  text-transform: uppercase;
+}
+
+.agenda__cuando time {
+  display: inline-block;
+}
+
+.agenda__lugar {
+  color: var(--color-texto-suave);
+}
+
+.agenda__inscribirme {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  margin-top: 0.5rem;
+  text-decoration: none;
+}

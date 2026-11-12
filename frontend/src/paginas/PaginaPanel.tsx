@@ -7,10 +7,10 @@ import './PaginaFormulario.css'
 /** Módulos del panel. Cada funcionalidad agrega aquí el enlace a su pantalla cuando esté lista. */
 const MODULOS = [
   { titulo: 'Secciones de la landing', descripcion: 'Espacios, servicios y horarios', ruta: '/panel/secciones' },
-  { titulo: 'Agenda de eventos', descripcion: 'Eventos y fechas de publicación', ruta: null },
-  { titulo: 'Galería', descripcion: 'Subir y eliminar imágenes', ruta: null },
-  { titulo: 'Inscripciones', descripcion: 'Personas inscritas a cada evento', ruta: null },
-] satisfies { titulo: string; descripcion: string; ruta: string | null }[]
+  { titulo: 'Agenda de eventos', descripcion: 'Eventos, fechas de publicación e inscritos', ruta: '/panel/agenda' },
+  { titulo: 'Galería', descripcion: 'Subir y eliminar imágenes', ruta: '/panel/galeria' },
+  { titulo: 'Usuarios y roles', descripcion: 'Nombrar o retirar al personal del CLENA', ruta: '/panel/usuarios', soloAdmin: true },
+] satisfies { titulo: string; descripcion: string; ruta: string | null; soloAdmin?: boolean }[]
 
 /** Inicio del panel del personal del CLENA. Solo para personal y administradores. */
 export function PaginaPanel() {
@@ -33,6 +33,7 @@ export function PaginaPanel() {
         </div>
         <div className="panel__acciones">
           <Link to="/">Ver la landing</Link>
+          <Link to="/mi-cuenta">Mi cuenta</Link>
           <button type="button" className="boton-secundario" onClick={() => void salir()}>
             Cerrar sesión
           </button>
@@ -40,7 +41,7 @@ export function PaginaPanel() {
       </header>
 
       <ul className="panel__modulos">
-        {MODULOS.map((modulo) => (
+        {MODULOS.filter((modulo) => !('soloAdmin' in modulo) || usuario?.rol === 'admin').map((modulo) => (
           <li key={modulo.titulo}>
             {modulo.ruta ? (
               <Link to={modulo.ruta} className="panel__modulo">

@@ -1,9 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router'
+import { PaginaAgenda } from './paginas/PaginaAgenda'
 import { PaginaAvisoPrivacidad } from './paginas/PaginaAvisoPrivacidad'
 import { PaginaGaleria } from './paginas/PaginaGaleria'
 import { PaginaIngresar } from './paginas/PaginaIngresar'
 import { PaginaInscripcion } from './paginas/PaginaInscripcion'
 import { PaginaPanel } from './paginas/PaginaPanel'
+import { PaginaPanelAgenda } from './paginas/PaginaPanelAgenda'
 import { PaginaPanelGaleria } from './paginas/PaginaPanelGaleria'
 import { PaginaPanelInscritos } from './paginas/PaginaPanelInscritos'
 import { PaginaPanelSecciones } from './paginas/PaginaPanelSecciones'
@@ -19,6 +21,7 @@ function App() {
     <Routes>
       <Route path="/" element={<PaginaPortada />} />
       <Route path="/recorrido/clena/:escenaId?" element={<PaginaRecorrido />} />
+      <Route path="/agenda" element={<PaginaAgenda />} />
       <Route path="/galeria" element={<PaginaGaleria />} />
       <Route path="/ingresar" element={<PaginaIngresar />} />
       <Route path="/registro" element={<PaginaRegistro />} />
@@ -53,6 +56,14 @@ function App() {
         element={
           <RutaProtegida roles={ROLES_PANEL}>
             <PaginaPanelInscritos />
+          </RutaProtegida>
+        }
+      />
+      <Route
+        path="/panel/agenda"
+        element={
+          <RutaProtegida roles={ROLES_PANEL}>
+            <PaginaPanelAgenda />
           </RutaProtegida>
         }
       />

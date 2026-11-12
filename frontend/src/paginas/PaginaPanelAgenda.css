@@ -1,0 +1,6 @@
+/* Enlace con forma de botón, junto a los botones de editar y eliminar */
+.panel-agenda__enlace {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}

@@ -3,8 +3,8 @@ import type { Conexion, Escena, FragmentoHistoria, PuntoInteres } from '../tipos
 // Datos temporales: se reemplazan por la API de recorridos cuando esté lista.
 // Las fotos de la cámara Kodak (gran angular) están enderezadas al formato del visor
 // y cubren unos 100° de ancho; las del museo son fotos normales.
-// Las conexiones entre salas, la posición de cada punto y los textos de historia son
-// provisionales: los textos definitivos los entrega el equipo de Introducción.
+// Las conexiones entre salas y la posición de cada punto son provisionales. Los textos de
+// historia los revisó el equipo de Introducción el 12 de noviembre de 2026.
 
 /** Escena tomada con la cámara Kodak y enderezada: cubre unos 100° de ancho. */
 function kodak(
@@ -45,7 +45,7 @@ const puntosInteres: Record<string, PuntoInteres[]> = {
       id: 'letrero-meira',
       titulo: 'Sala de lectura Meira del Mar',
       texto:
-        'La sala lleva el nombre de Meira del Mar, poeta barranquillera. Adentro hay mesas para leer y estudiar en silencio.',
+        'La sala lleva el nombre de Meira del Mar, poeta barranquillera, en honor a su inmenso legado cultural e histórico.',
       yaw: -32,
       pitch: 17,
     },
@@ -76,7 +76,7 @@ const escenasSinPuntos: Escena[] = [
       {
         titulo: 'Bienvenido al CLENA',
         texto:
-          'Estás en el complejo de la antigua Aduana de Barranquilla, sede de la Corporación Luis Eduardo Nieto Arteta. Entra por la puerta del fondo para recorrer sus espacios.',
+          'Estás en el complejo de la antigua Aduana de Barranquilla, sede de la Corporación Luis Eduardo Nieto Arteta. Entra por la puerta principal y descubre lo que ofrece este interesante lugar. ¡Recorramos sus espacios!',
       },
       {
         titulo: 'La oferta cultural',
@@ -93,7 +93,8 @@ const escenasSinPuntos: Escena[] = [
     [
       {
         titulo: 'Los jardines',
-        texto: 'Las zonas verdes rodean los edificios del complejo y acompañan los corredores exteriores.',
+        texto:
+          'Las zonas verdes rodean los edificios del complejo. Además, aquí está una iniciativa de arte público: las «vacasquillas».',
       },
     ],
   ),
@@ -133,6 +134,11 @@ const escenasSinPuntos: Escena[] = [
         titulo: 'La Biblioteca',
         texto:
           'Un pasillo central reúne las salas de la biblioteca. A la derecha está la Colección general y al fondo, la Sala de lectura Meira del Mar.',
+      },
+      {
+        titulo: 'Históricamente',
+        texto:
+          'El edificio era conocido como el epicentro del comercio exterior de Barranquilla: aquí se gestionaban las importaciones y exportaciones.',
       },
     ],
   ),
@@ -202,7 +208,8 @@ const escenasSinPuntos: Escena[] = [
     [
       {
         titulo: 'Entre los libros',
-        texto: 'Los libros están organizados por temas en estas estanterías.',
+        texto:
+          'Los libros están organizados por temas en estas estanterías. La colección cuenta con literatura regional e historia de Barranquilla y del Caribe colombiano.',
       },
     ],
   ),
@@ -345,7 +352,8 @@ const escenasSinPuntos: Escena[] = [
     [
       {
         titulo: 'Un descanso',
-        texto: 'Mesas para sentarse a conversar o descansar antes de seguir el recorrido.',
+        texto:
+          'Mesas para sentarse a conversar o descansar antes de seguir el recorrido. En el apartado de la izquierda puedes conocer más sobre el CLENA.',
       },
     ],
   ),
@@ -409,7 +417,7 @@ const escenasSinPuntos: Escena[] = [
       {
         titulo: 'La Cámara de Comercio',
         texto:
-          'Esta sala recuerda el papel del comercio en el crecimiento de Barranquilla. Lee la cita en la pared de la derecha.',
+          'Puedes explorar esta sala, donde se recuerda el papel fundamental que tuvo el comercio en el crecimiento de Barranquilla. Lee la cita en la pared.',
       },
     ],
   },

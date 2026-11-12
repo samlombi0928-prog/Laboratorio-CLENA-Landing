@@ -1,0 +1,66 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-clena}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-clena_dev_local}
+      POSTGRES_DB: ${DB_NAME:-clena}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME:-clena}
+      DB_PASSWORD: ${DB_PASSWORD:-clena_dev_local}
+      DB_NAME: ${DB_NAME:-clena}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
+      # Solo desarrollo. En cualquier otro entorno, definir uno propio en .env
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-solo-desarrollo-local-no-usar-en-produccion-0123456789}
+      JWT_ACCESS_TTL_SECONDS: ${JWT_ACCESS_TTL_SECONDS:-900}
+      REFRESH_TOKEN_TTL_DAYS: ${REFRESH_TOKEN_TTL_DAYS:-7}
+      # Los correos de confirmación llegan a Mailpit: se ven en http://localhost:8025
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      # Las imágenes subidas viven en el volumen "storage" para no perderse al recrear el contenedor
+      STORAGE_DIR: /app/storage
+      # Con esta dirección se arman las URL de las imágenes; todo entra por Nginx en el 8080
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8080}
+    volumes:
+      - storage:/app/storage
+    command: >
+      sh -c "npm run typeorm -- migration:run -d dist/infrastructure/database/data-source.js
+      && node dist/main.js"
+    # Sin "ports" a propósito: la API solo se alcanza a través de Nginx, que agrega el
+    # X-Forwarded-For en el que confía el límite de intentos. Publicar el 3000 permitiría saltárselo.
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "8025:8025"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  pgdata:
+  storage:

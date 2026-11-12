@@ -77,9 +77,27 @@ Requisitos: Docker y docker-compose.
 ```bash
 git clone https://github.com/sbritoa20/Laboratorio-CLENA-Landing.git
 cd Laboratorio-CLENA-Landing
-cp backend/.env.example backend/.env
-docker compose up
+docker compose up --build
 ```
+
+No hace falta un `.env`: el compose trae valores que sirven solo para desarrollo local. Para cambiar alguno, copie el `.env.example` de la raíz como `.env`.
+
+Al arrancar, el backend aplica las migraciones, que crean las tablas y cargan las secciones y los eventos de ejemplo. Las imágenes de ejemplo de la galería se cargan aparte, con los contenedores ya arriba:
+
+```bash
+docker compose exec backend npm run galeria:semilla
+```
+
+| Dirección | Qué es |
+|---|---|
+| http://localhost:8080 | Aplicación web |
+| http://localhost:8080/docs | Documentación de la API (Swagger) |
+| http://localhost:8080/api/v1/health | Estado de la API y de la base de datos |
+| http://localhost:8025 | Mailpit: los correos de confirmación de las inscripciones |
+
+Todo entra por Nginx en el puerto 8080. La API no publica su puerto 3000, para que nadie se salte el límite de intentos llamándola directamente.
+
+Para empezar de cero (borra la base de datos y las imágenes subidas): `docker compose down -v`.
 
 ### Sin Docker
 

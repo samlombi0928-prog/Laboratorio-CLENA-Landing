@@ -222,7 +222,7 @@ Los correos se envían a [Mailpit](https://mailpit.axllent.org/), que los atrapa
 docker run -d --name clena-mailpit -p 1025:1025 -p 8025:8025 axllent/mailpit:v1.27
 ```
 
-Los correos se ven en http://localhost:8025.
+Los correos se ven en http://localhost:8025. Con `docker compose up` desde la raíz no hace falta este comando: Mailpit ya viene incluido.
 
 ### Paginación de los listados
 

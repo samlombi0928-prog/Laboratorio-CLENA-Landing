@@ -4,6 +4,7 @@ import {
   type CreateAgendaEventProps,
   EVENT_TITLE_MAX_LENGTH,
 } from './agenda-event.js';
+import { EventStatus } from './event-status.js';
 
 const now = new Date('2026-11-07T12:00:00Z');
 
@@ -120,6 +121,82 @@ describe('AgendaEvent', () => {
       );
 
       expect(later.isPublishedAt(new Date('2026-11-11T00:00:00Z'))).toBe(false);
+    });
+  });
+
+  describe('statusAt', () => {
+    const event = AgendaEvent.create(validInput());
+
+    it('está pendiente antes de su periodo de publicación', () => {
+      expect(event.statusAt(new Date('2026-11-06T23:59:59Z'))).toBe(
+        EventStatus.Scheduled,
+      );
+    });
+
+    it('está publicado desde el primer instante del periodo', () => {
+      expect(event.statusAt(new Date('2026-11-07T00:00:00Z'))).toBe(
+        EventStatus.Published,
+      );
+    });
+
+    it('se cierra cuando el evento empieza', () => {
+      expect(event.statusAt(new Date('2026-11-20T23:00:00Z'))).toBe(
+        EventStatus.Closed,
+      );
+    });
+
+    it('un evento que ya empezó queda cerrado aunque su publicación no haya empezado', () => {
+      const odd = AgendaEvent.create(
+        validInput({
+          startsAt: new Date('2026-11-08T00:00:00Z'),
+          publishFrom: new Date('2026-11-09T00:00:00Z'),
+          publishUntil: new Date('2026-11-10T00:00:00Z'),
+        }),
+      );
+
+      expect(odd.statusAt(new Date('2026-11-08T12:00:00Z'))).toBe(
+        EventStatus.Closed,
+      );
+    });
+  });
+
+  describe('update', () => {
+    const later = new Date('2026-11-08T12:00:00Z');
+
+    it('cambia solo los campos que llegan y la fecha de actualización', () => {
+      const event = AgendaEvent.create(validInput());
+
+      event.update({ title: '  Noche de jazz  ', capacity: 50 }, later);
+
+      expect(event.title).toBe('Noche de jazz');
+      expect(event.capacity).toBe(50);
+      expect(event.location).toBe('Museo de la Aduana');
+      expect(event.createdAt).toEqual(now);
+      expect(event.updatedAt).toEqual(later);
+    });
+
+    it('valida el periodo con las fechas nuevas y las que ya tenía', () => {
+      const event = AgendaEvent.create(validInput());
+
+      expectRuleError(
+        () =>
+          event.update(
+            { publishUntil: new Date('2026-11-06T00:00:00Z') },
+            later,
+          ),
+        'PERIODO_DE_PUBLICACION_NO_VALIDO',
+      );
+    });
+
+    it('no cambia nada si algún dato es inválido', () => {
+      const event = AgendaEvent.create(validInput());
+
+      expectRuleError(
+        () => event.update({ title: 'Otro', capacity: 0 }, later),
+        'CUPO_NO_VALIDO',
+      );
+      expect(event.title).toBe('Noche de museos');
+      expect(event.updatedAt).toEqual(now);
     });
   });
 });

@@ -8,7 +8,7 @@ import './PaginaFormulario.css'
 const MODULOS = [
   { titulo: 'Secciones de la landing', descripcion: 'Espacios, servicios y horarios', ruta: '/panel/secciones' },
   { titulo: 'Agenda de eventos', descripcion: 'Eventos y fechas de publicación', ruta: null },
-  { titulo: 'Galería', descripcion: 'Subir y eliminar imágenes', ruta: null },
+  { titulo: 'Galería', descripcion: 'Subir y eliminar imágenes', ruta: '/panel/galeria' },
   { titulo: 'Inscripciones', descripcion: 'Personas inscritas a cada evento', ruta: null },
   { titulo: 'Usuarios y roles', descripcion: 'Nombrar o retirar al personal del CLENA', ruta: '/panel/usuarios', soloAdmin: true },
 ] satisfies { titulo: string; descripcion: string; ruta: string | null; soloAdmin?: boolean }[]

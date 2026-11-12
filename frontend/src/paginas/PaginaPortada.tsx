@@ -23,6 +23,9 @@ export function PaginaPortada() {
           <Link to="/recorrido/clena" className="portada__boton">
             Iniciar recorrido <span aria-hidden="true">➜</span>
           </Link>
+          <Link to="/galeria" className="portada__enlace">
+            Ver la galería de fotos
+          </Link>
           <p className="portada__ayuda">
             Arrastra para mirar alrededor y usa los botones dentro de cada sala para pasar a la
             siguiente.

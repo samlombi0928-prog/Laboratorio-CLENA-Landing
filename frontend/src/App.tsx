@@ -4,6 +4,7 @@ import { PaginaAvisoPrivacidad } from './paginas/PaginaAvisoPrivacidad'
 import { PaginaGaleria } from './paginas/PaginaGaleria'
 import { PaginaIngresar } from './paginas/PaginaIngresar'
 import { PaginaInscripcion } from './paginas/PaginaInscripcion'
+import { PaginaMiCuenta } from './paginas/PaginaMiCuenta'
 import { PaginaPanel } from './paginas/PaginaPanel'
 import { PaginaPanelAgenda } from './paginas/PaginaPanelAgenda'
 import { PaginaPanelGaleria } from './paginas/PaginaPanelGaleria'
@@ -27,6 +28,8 @@ function App() {
       <Route path="/registro" element={<PaginaRegistro />} />
       <Route path="/aviso-de-privacidad" element={<PaginaAvisoPrivacidad />} />
       <Route path="/eventos/:idEvento/inscripcion" element={<PaginaInscripcion />} />
+      {/* Sin RutaProtegida: después de eliminar la cuenta tiene que poder mostrar el aviso final */}
+      <Route path="/mi-cuenta" element={<PaginaMiCuenta />} />
       <Route
         path="/panel"
         element={

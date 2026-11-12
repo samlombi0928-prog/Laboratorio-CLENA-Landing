@@ -33,6 +33,7 @@ export function PaginaPanel() {
         </div>
         <div className="panel__acciones">
           <Link to="/">Ver la landing</Link>
+          <Link to="/mi-cuenta">Mi cuenta</Link>
           <button type="button" className="boton-secundario" onClick={() => void salir()}>
             Cerrar sesión
           </button>

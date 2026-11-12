@@ -1,0 +1,12 @@
+.inscripcion__evento {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.inscripcion__inicio {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.5rem;
+  text-decoration: none;
+}

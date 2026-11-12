@@ -95,7 +95,8 @@ export function PaginaGaleria() {
                   aria-haspopup="dialog"
                   onClick={() => setAbierta(imagen)}
                 >
-                  <img src={imagen.imagenUrl} alt={imagen.textoAlternativo} loading="lazy" decoding="async" />
+                  {/* El botón se anuncia solo con el título; la descripción completa la tiene la foto grande del visor */}
+                  <img src={imagen.imagenUrl} alt="" loading="lazy" decoding="async" />
                   <span className="galeria__titulo">{imagen.titulo}</span>
                 </button>
               </li>

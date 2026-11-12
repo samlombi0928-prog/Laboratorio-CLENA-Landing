@@ -22,7 +22,8 @@
 
 .secciones-landing__tarjetas {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  /* min(…, 100%): con el texto al 200 % en un celular, una columna de 16rem no cabe */
+  grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
   gap: 1rem;
   margin: 0;
   padding: 0;
